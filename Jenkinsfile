@@ -16,6 +16,7 @@ pipeline {
         DOCKER_PASS = 'dockerhub'
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        PATH = "$PATH:$HOME/.npm-global/bin"
     }
 
     stages {
@@ -52,8 +53,11 @@ pipeline {
             steps {
                 script {
                     dir('front') {
+                        // Install Angular CLI globally and make it executable
+                        sh 'npm install -g @angular/cli'
                         sh 'npm install'
-                        sh 'npm run build --prod'
+                        // Use npx to run Angular CLI or call it directly
+                        sh 'npx ng build --configuration production || npm run build'
                     }
 
                     dir('back') {
@@ -89,7 +93,7 @@ pipeline {
                     script {
                         withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-token') {
                             sh 'npm install sonar-scanner'
-                            sh 'npx sonar-scanner -Dsonar.projectKey=frontend-project-key -Dsonar.sources=src'
+                            sh 'npx sonar-scanner'
                         }
                     }
                 }
@@ -161,6 +165,17 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished'
+            // Clean up MySQL container in case of failure
+            sh '''
+                docker stop mysql-test || true
+                docker rm mysql-test || true
+            '''
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the logs for details.'
         }
     }
 }

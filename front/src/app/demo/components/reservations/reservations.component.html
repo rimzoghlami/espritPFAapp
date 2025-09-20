@@ -1,0 +1,324 @@
+<!-- Admin Reservations Supervision Panel -->
+<div class="esprit-admin-reservations-container">
+  <!-- Header Section -->
+  <div class="esprit-admin-header">
+    <div class="esprit-header-content">
+      <div class="esprit-header-title">
+        <i class="pi pi-shield"></i>
+        <h2>Reservation Management</h2>
+        <p>Supervise and manage all enseignant reservations</p>
+      </div>
+      <div class="esprit-header-actions">
+        <button class="esprit-refresh-btn" (click)="loadAllReservations()">
+          <i class="pi pi-refresh"></i>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Dashboard -->
+  <div class="esprit-stats-dashboard">
+    <div class="esprit-stat-card esprit-total">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-list"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <span class="esprit-stat-number">{{ totalReservations }}</span>
+        <span class="esprit-stat-label">Total Reservations</span>
+      </div>
+    </div>
+    <div class="esprit-stat-card esprit-confirmed">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <span class="esprit-stat-number">{{ confirmedReservations }}</span>
+        <span class="esprit-stat-label">Confirmed</span>
+      </div>
+    </div>
+    <div class="esprit-stat-card esprit-pending">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <span class="esprit-stat-number">{{ pendingReservations }}</span>
+        <span class="esprit-stat-label">Pending</span>
+      </div>
+    </div>
+    <div class="esprit-stat-card esprit-cancelled">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-times-circle"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <span class="esprit-stat-number">{{ cancelledReservations }}</span>
+        <span class="esprit-stat-label">Cancelled</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Filter Section -->
+  <div class="esprit-admin-filter-section">
+    <div class="esprit-filter-card">
+      <div class="esprit-filter-header">
+        <i class="pi pi-filter"></i>
+        <h3>Advanced Filters</h3>
+      </div>
+      <div class="esprit-filter-content">
+        <div class="esprit-filter-row">
+          <div class="esprit-filter-group">
+            <label class="esprit-filter-label">Status:</label>
+            <p-dropdown
+              [options]="statusOptions"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="selectedStatusFilter"
+              placeholder="All Status"
+              (onChange)="applyFilters()"
+              styleClass="esprit-dropdown">
+            </p-dropdown>
+          </div>
+          <div class="esprit-filter-group">
+            <label class="esprit-filter-label">Enseignant:</label>
+            <p-dropdown
+              [options]="enseignantOptions"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="selectedEnseignantFilter"
+              placeholder="All Enseignants"
+              (onChange)="applyFilters()"
+              styleClass="esprit-dropdown">
+            </p-dropdown>
+          </div>
+          <div class="esprit-filter-group">
+            <label class="esprit-filter-label">Formation:</label>
+            <p-dropdown
+              [options]="formationOptions"
+              optionLabel="label"
+              optionValue="value"
+              [(ngModel)]="selectedFormationFilter"
+              placeholder="All Formations"
+              (onChange)="applyFilters()"
+              styleClass="esprit-dropdown">
+            </p-dropdown>
+          </div>
+          <div class="esprit-filter-group">
+            <label class="esprit-filter-label">Date Range:</label>
+            <p-calendar
+              [(ngModel)]="dateRange"
+              selectionMode="range"
+              [readonlyInput]="true"
+              placeholder="Select date range"
+              (onSelect)="applyFilters()"
+              styleClass="esprit-calendar">
+            </p-calendar>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="esprit-admin-loading" *ngIf="loading">
+    <i class="pi pi-spin pi-spinner"></i>
+    <span>Loading all reservations...</span>
+  </div>
+
+  <!-- Admin Reservations Table -->
+  <div class="esprit-admin-reservations-table" *ngIf="!loading && filteredReservations.length > 0">
+    <p-table 
+      [value]="filteredReservations" 
+      [paginator]="true" 
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} reservations"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      styleClass="esprit-admin-table">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Enseignant</th>
+          <th>Formation</th>
+          <th>Category</th>
+          <th>Date Reserved</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-reservation>
+        <tr>
+          <td>
+            <div class="esprit-enseignant-info">
+              <div class="esprit-enseignant-avatar">
+                <span>{{ (reservation.user?.firstName?.charAt(0) || 'U') + (reservation.user?.lastName?.charAt(0) || 'N') }}</span>
+              </div>
+              <div class="esprit-enseignant-details">
+                <div class="esprit-enseignant-name">{{ reservation.user?.firstName }} {{ reservation.user?.lastName }}</div>
+                <div class="esprit-enseignant-email">{{ reservation.user?.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="esprit-formation-info">
+              <div class="esprit-formation-title">{{ reservation.formation?.titre || 'N/A' }}</div>
+              <div class="esprit-formation-dates">
+                <i class="pi pi-calendar"></i>
+                {{ reservation.formation?.dateDebut | date:'MMM dd, yyyy' }}
+              </div>
+            </div>
+          </td>
+          <td>
+            <p-tag 
+              [value]="reservation.formation?.categorie?.nom || 'General'" 
+              severity="info"
+              class="esprit-category-tag">
+            </p-tag>
+          </td>
+          <td>
+            <div class="esprit-reservation-date">
+              <i class="pi pi-clock"></i>
+              {{ reservation.dateReservation | date:'MMM dd, yyyy HH:mm' }}
+            </div>
+          </td>
+          <td>
+            <p-tag 
+              [value]="getStatusLabel(reservation.status)" 
+              [severity]="getStatusSeverity(reservation.status)"
+              class="esprit-status-tag">
+            </p-tag>
+          </td>
+          <td>
+            <div class="esprit-action-buttons">
+              <button 
+                *ngIf="reservation.status === 'EN_ATTENTE'"
+                class="esprit-approve-btn"
+                (click)="approveReservation(reservation)"
+                pTooltip="Approve Reservation">
+                <i class="pi pi-check"></i>
+              </button>
+              <button 
+                *ngIf="reservation.status !== 'ANNULE'"
+                class="esprit-cancel-btn"
+                (click)="cancelReservation(reservation)"
+                pTooltip="Cancel Reservation">
+                <i class="pi pi-times"></i>
+              </button>
+              <button 
+                class="esprit-view-btn"
+                (click)="viewReservationDetails(reservation)"
+                pTooltip="View Details">
+                <i class="pi pi-eye"></i>
+              </button>
+              <button 
+                class="esprit-delete-btn"
+                (click)="deleteReservation(reservation)"
+                pTooltip="Delete Reservation">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Empty State -->
+  <div class="esprit-admin-empty-state" *ngIf="!loading && filteredReservations.length === 0">
+    <div class="esprit-empty-icon">
+      <i class="pi pi-calendar-times"></i>
+    </div>
+    <h3 class="esprit-empty-title">No Reservations Found</h3>
+    <p class="esprit-empty-text">
+      {{ reservations.length === 0 ? 
+        'No reservations have been made yet.' : 
+        'No reservations match your current filters. Try adjusting your search criteria.' }}
+    </p>
+    <button 
+      pButton 
+      type="button" 
+      label="Refresh Data" 
+      icon="pi pi-refresh"
+      class="esprit-btn-primary"
+      (click)="loadAllReservations()">
+    </button>
+  </div>
+</div>
+
+<!-- Reservation Details Dialog -->
+<p-dialog 
+  [(visible)]="showDetailsDialog" 
+  [modal]="true" 
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="esprit-details-dialog"
+  header="Reservation Details"
+  (onHide)="closeDetailsDialog()">
+  
+  <div class="esprit-dialog-content" *ngIf="selectedReservation">
+    <!-- Formation Image -->
+    <div class="esprit-dialog-image" *ngIf="selectedReservation.formation?.imageUrl">
+      <img [src]="selectedReservation.formation?.imageUrl" 
+           [alt]="selectedReservation.formation?.titre"
+           class="esprit-formation-image">
+    </div>
+
+    <!-- Reservation Info -->
+    <div class="esprit-dialog-info">
+      <div class="esprit-dialog-header">
+        <h3>{{ selectedReservation.formation?.titre }}</h3>
+        <p-tag 
+          [value]="getStatusLabel(selectedReservation.statut)" 
+          [severity]="getStatusSeverity(selectedReservation.statut)">
+        </p-tag>
+      </div>
+
+      <div class="esprit-dialog-description">
+        <p>{{ selectedReservation.formation?.description }}</p>
+      </div>
+
+      <div class="esprit-dialog-details">
+        <div class="esprit-detail-row">
+          <i class="pi pi-hashtag"></i>
+          <div class="esprit-detail-content">
+            <span class="esprit-detail-label">Reservation ID</span>
+            <span class="esprit-detail-value">#{{ selectedReservation.id }}</span>
+          </div>
+        </div>
+        
+        <div class="esprit-detail-row">
+          <i class="pi pi-clock"></i>
+          <div class="esprit-detail-content">
+            <span class="esprit-detail-label">Reserved On</span>
+            <span class="esprit-detail-value">{{ selectedReservation.dateReservation | date:'full' }}</span>
+          </div>
+        </div>
+        
+        <!-- Add more details as needed -->
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="esprit-dialog-footer">
+      <button 
+        pButton 
+        type="button" 
+        label="Close" 
+        icon="pi pi-times"
+        class="esprit-btn-secondary"
+        (click)="closeDetailsDialog()">
+      </button>
+      <button 
+        *ngIf="selectedReservation?.statut === 'EN_ATTENTE'"
+        pButton 
+        type="button" 
+        label="Cancel Reservation" 
+        icon="pi pi-times"
+        class="esprit-btn-danger"
+        (click)="selectedReservation && cancelReservation(selectedReservation)">
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

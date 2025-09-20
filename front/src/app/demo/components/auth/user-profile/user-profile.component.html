@@ -1,0 +1,112 @@
+<div class="esprit-profile-container">
+  <div class="esprit-profile-card">
+    <!-- Profile Header with Fixed Avatar -->
+    <div class="esprit-profile-header">
+      <div class="esprit-profile-avatar">
+        <div class="esprit-avatar-large">
+          <i class="pi pi-user"></i>
+        </div>
+        <div class="esprit-avatar-status-large"></div>
+      </div>
+      <div class="esprit-profile-info">
+        <h2 class="esprit-profile-name">{{ user.firstName }} {{ user.lastName }}</h2>
+        <p class="esprit-profile-role">
+          <i class="pi pi-graduation-cap"></i>
+          {{ user.roleType }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Profile Details with Simple Icons -->
+    <div class="esprit-profile-details">
+      <div class="esprit-detail-section">
+        <h3 class="esprit-section-title">
+          <i class="pi pi-user-circle"></i>
+          Personal Information
+        </h3>
+        <div class="esprit-detail-grid">
+          <div class="esprit-detail-item">
+            <div class="esprit-detail-icon">
+              <i class="pi pi-envelope"></i>
+            </div>
+            <div class="esprit-detail-content">
+              <span class="esprit-detail-label">Email</span>
+              <span class="esprit-detail-value">{{ user.email }}</span>
+            </div>
+          </div>
+          
+          <div class="esprit-detail-item">
+            <div class="esprit-detail-icon">
+              <i class="pi pi-phone"></i>
+            </div>
+            <div class="esprit-detail-content">
+              <span class="esprit-detail-label">Phone</span>
+              <span class="esprit-detail-value">{{ user.phoneNumber || 'Not provided' }}</span>
+            </div>
+          </div>
+          
+          <div class="esprit-detail-item">
+            <div class="esprit-detail-icon">
+              <i class="pi pi-map-marker"></i>
+            </div>
+            <div class="esprit-detail-content">
+              <span class="esprit-detail-label">Address</span>
+              <span class="esprit-detail-value">{{ user.address || 'Not provided' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="esprit-detail-section">
+        <h3 class="esprit-section-title">
+          <i class="pi pi-cog"></i>
+          Account Settings
+        </h3>
+        <div class="esprit-detail-grid">
+          <div class="esprit-detail-item">
+            <div class="esprit-detail-icon">
+              <i class="pi pi-calendar"></i>
+            </div>
+            <div class="esprit-detail-content">
+              <span class="esprit-detail-label">Member Since</span>
+              <span class="esprit-detail-value">{{ user.createdAt | date:'mediumDate' || 'Recently' }}</span>
+            </div>
+          </div>
+          
+          <div class="esprit-detail-item">
+            <div class="esprit-detail-icon">
+              <i class="pi pi-shield"></i>
+            </div>
+            <div class="esprit-detail-content">
+              <span class="esprit-detail-label">Account Status</span>
+              <span class="esprit-detail-value esprit-status-active">
+                <i class="pi pi-check-circle"></i>
+                Active
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Actions -->
+    <div class="esprit-profile-actions">
+      <button 
+        pButton 
+        pRipple 
+        class="esprit-btn-primary"
+        (click)="openEditDialog()">
+        <i class="pi pi-user-edit"></i>
+        <span>Edit Profile</span>
+      </button>
+      <button 
+        pButton 
+        pRipple 
+        class="esprit-btn-secondary"
+        (click)="logout()">
+        <i class="pi pi-sign-out"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </div>
+</div>

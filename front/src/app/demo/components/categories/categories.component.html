@@ -1,0 +1,351 @@
+<!-- Enhanced Categories Management -->
+<div class="esprit-categories-container">
+  <!-- Header Section -->
+  <div class="esprit-categories-header">
+    <div class="esprit-header-content">
+      <div class="esprit-header-left">
+        <div class="esprit-header-icon">
+          <i class="pi pi-tags"></i>
+        </div>
+        <div class="esprit-header-text">
+          <h1 class="esprit-title">Categories Management</h1>
+          <p class="esprit-subtitle">Organize and manage formation categories</p>
+        </div>
+      </div>
+      <div class="esprit-header-actions">
+        <button class="esprit-btn-primary" (click)="showAddDialog()">
+          <i class="pi pi-plus"></i>
+          <span>Add Category</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Statistics Dashboard -->
+  <div class="esprit-stats-grid">
+    <div class="esprit-stat-card esprit-stat-primary" [class.esprit-pulse]="loading">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-tags"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number" [class.esprit-counting]="categories.length > 0">{{ categories.length }}</div>
+        <div class="esprit-stat-label">Total Categories</div>
+        <div class="esprit-stat-trend" *ngIf="categories.length > 0">
+          <i class="pi pi-arrow-up"></i>
+          <span>+{{ categories.length }} this session</span>
+        </div>
+      </div>
+    </div>
+    <div class="esprit-stat-card esprit-stat-success">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ getActiveCategories() }}</div>
+        <div class="esprit-stat-label">Active Categories</div>
+        <div class="esprit-stat-progress">
+          <div class="esprit-progress-bar">
+            <div class="esprit-progress-fill" [style.width.%]="getActiveCategoriesPercentage()"></div>
+          </div>
+          <span class="esprit-progress-text">{{ getActiveCategoriesPercentage() | number:'1.0-0' }}% active</span>
+        </div>
+      </div>
+    </div>
+    <div class="esprit-stat-card esprit-stat-info">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-chart-bar"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ getCategoryStats().averageNameLength | number:'1.0-0' }}</div>
+        <div class="esprit-stat-label">Avg Name Length</div>
+        <div class="esprit-stat-quality">
+          <div class="esprit-quality-indicator" [class]="getQualityClass()">
+            <i class="pi" [class]="getQualityIcon()"></i>
+            <span>{{ getQualityText() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Search and Filter Section -->
+  <div class="esprit-search-section">
+    <div class="esprit-search-container">
+      <div class="esprit-search-bar">
+        <div class="esprit-search-input-wrapper">
+          <i class="pi pi-search esprit-search-icon"></i>
+          <input 
+            type="text" 
+            class="esprit-search-input" 
+            placeholder="Search categories by name or description..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+            #searchInput>
+          <button 
+            *ngIf="searchTerm" 
+            class="esprit-search-clear"
+            (click)="clearSearch(); searchInput.focus()"
+            pTooltip="Clear search">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="esprit-filter-controls">
+        <div class="esprit-sort-dropdown">
+          <p-dropdown 
+            [options]="sortOptions" 
+            [(ngModel)]="selectedSort" 
+            optionLabel="label" 
+            optionValue="value"
+            placeholder="Sort by"
+            styleClass="esprit-sort-select"
+            (onChange)="onSortChange()">
+            <ng-template pTemplate="selectedItem">
+              <div class="esprit-sort-selected" *ngIf="selectedSort">
+                <i class="pi" [class]="getSortIcon()"></i>
+                <span>{{ getSortLabel() }}</span>
+              </div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+        
+        <div class="esprit-view-toggle">
+          <button 
+            class="esprit-view-btn" 
+            [class.active]="viewMode === 'grid'"
+            (click)="setViewMode('grid')"
+            pTooltip="Grid view">
+            <i class="pi pi-th-large"></i>
+          </button>
+          <button 
+            class="esprit-view-btn" 
+            [class.active]="viewMode === 'list'"
+            (click)="setViewMode('list')"
+            pTooltip="List view">
+            <i class="pi pi-list"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Search Results Info -->
+    <div class="esprit-search-info" *ngIf="searchTerm || filteredCategories.length !== categories.length">
+      <div class="esprit-results-count">
+        <i class="pi pi-info-circle"></i>
+        <span>Showing {{ filteredCategories.length }} of {{ categories.length }} categories</span>
+        <button 
+          *ngIf="searchTerm" 
+          class="esprit-clear-filters"
+          (click)="clearAllFilters()">
+          <i class="pi pi-filter-slash"></i>
+          Clear filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Categories Grid -->
+  <div class="esprit-categories-grid" 
+       [class.esprit-list-view]="viewMode === 'list'"
+       *ngIf="!loading && filteredCategories.length > 0">
+    <div class="esprit-category-card" 
+         [class.esprit-card-list]="viewMode === 'list'"
+         *ngFor="let category of filteredCategories; trackBy: trackByCategory"
+         [attr.data-category-id]="category.id">
+      <!-- Category Card Badge -->
+      <div class="esprit-card-badge" *ngIf="category.formations && category.formations.length > 0">
+        <span>{{ category.formations.length }} formations</span>
+      </div>
+      <div class="esprit-category-header">
+        <div class="esprit-category-icon">
+          <i class="pi pi-tag"></i>
+        </div>
+        <div class="esprit-category-info">
+          <h3 class="esprit-category-title">{{ category.nom }}</h3>
+          <div class="esprit-category-meta">
+            <span class="esprit-category-id">ID: {{ category.id }}</span>
+          </div>
+        </div>
+        <div class="esprit-category-actions">
+          <button class="esprit-btn-danger-sm" (click)="category.id && confirmDelete(category.id)" 
+                  pTooltip="Delete Category" tooltipPosition="top">
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+      </div>
+      <div class="esprit-category-body">
+        <p class="esprit-category-description">
+          {{ category.description || 'No description available' }}
+        </p>
+      </div>
+      <div class="esprit-category-footer">
+        <div class="esprit-category-stats">
+          <span class="esprit-stat-item">
+            <i class="pi pi-book"></i>
+            {{ (category.formations?.length || 0) }} formations
+          </span>
+          <span class="esprit-stat-item">
+            <i class="pi pi-calendar"></i>
+            Created
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Empty State -->
+  <div class="esprit-empty-state" *ngIf="!loading && categories.length === 0">
+    <div class="esprit-empty-icon">
+      <i class="pi pi-tags"></i>
+    </div>
+    <h3 class="esprit-empty-title">No Categories Found</h3>
+    <p class="esprit-empty-description">
+      Categories help organize your formations. Create your first category to get started.
+    </p>
+    <button class="esprit-btn-primary" (click)="showAddDialog()">
+      <i class="pi pi-plus"></i>
+      <span>Create First Category</span>
+    </button>
+  </div>
+
+  <!-- Enhanced Loading State -->
+  <div class="esprit-loading-state" *ngIf="loading">
+    <div class="esprit-loading-spinner">
+      <p-progressSpinner strokeWidth="3" animationDuration="1s"></p-progressSpinner>
+    </div>
+    <p class="esprit-loading-text">Loading categories...</p>
+  </div>
+</div>
+
+<!-- Enhanced Add Category Dialog -->
+<p-dialog 
+    [(visible)]="displayDialog" 
+    [modal]="true" 
+    [closable]="true"
+    [draggable]="false"
+    [resizable]="false"
+    header="Add New Category"
+    styleClass="esprit-category-dialog"
+    [style]="{width: '500px'}">
+    
+    <div class="esprit-dialog-content">
+      <form #categoryFormRef="ngForm" (ngSubmit)="saveCategory()">
+        <!-- Category Name -->
+        <div class="esprit-form-group">
+          <label for="categoryName" class="esprit-label">
+            <i class="pi pi-tag"></i>
+            <span>Category Name *</span>
+          </label>
+          <div class="esprit-input-wrapper">
+            <input 
+                type="text" 
+                id="categoryName"
+                class="esprit-input"
+                [(ngModel)]="categoryForm.nom" 
+                name="nom"
+                required
+                maxlength="50"
+                placeholder="Enter category name"
+                [class.esprit-input-error]="isFieldInvalid('nom')"
+                [class.esprit-input-success]="isFieldValid('nom')"
+                (focus)="onInputFocus('nom')"
+                (blur)="onInputBlur('nom')"
+                (input)="onFieldChange('nom')"
+                #nomField="ngModel">
+            <div class="esprit-input-icon">
+              <i class="pi pi-tag"></i>
+            </div>
+          </div>
+          <div class="esprit-field-info">
+            <span class="esprit-char-count">{{ (categoryForm.nom.length || 0) }}/50</span>
+            <div class="esprit-quality-indicator" *ngIf="categoryForm.nom">
+              <i class="pi" [ngClass]="getQualityIcon()" [style.color]="getQualityColor()"></i>
+              <span [style.color]="getQualityColor()">{{ getQualityText() }}</span>
+            </div>
+          </div>
+          <div class="esprit-field-error" *ngIf="isFieldInvalid('nom')">
+            <i class="pi pi-exclamation-triangle"></i>
+            {{ validationErrors['nom'] }}
+          </div>
+        </div>
+
+        <!-- Category Description -->
+        <div class="esprit-form-group">
+          <label for="categoryDescription" class="esprit-label">
+            <i class="pi pi-align-left"></i>
+            <span>Category Description *</span>
+          </label>
+          <div class="esprit-textarea-wrapper">
+            <textarea 
+                id="categoryDescription"
+                class="esprit-textarea"
+                [(ngModel)]="categoryForm.description" 
+                name="description"
+                required
+                maxlength="500"
+                rows="4"
+                placeholder="Enter a detailed description of this category"
+                [class.esprit-input-error]="isFieldInvalid('description')"
+                [class.esprit-input-success]="isFieldValid('description')"
+                (focus)="onInputFocus('description')"
+                (blur)="onInputBlur('description')"
+                (input)="onFieldChange('description')"
+                #descriptionField="ngModel">
+            </textarea>
+            <div class="esprit-textarea-icon">
+              <i class="pi pi-align-left"></i>
+            </div>
+          </div>
+          <div class="esprit-field-info">
+            <span class="esprit-char-count">{{ (categoryForm.description.length || 0) }}/500</span>
+            <div class="esprit-description-stats" *ngIf="categoryForm.description">
+              <span class="esprit-stat-item">
+                <i class="pi pi-book"></i>
+                {{ getWordCount() }} words
+              </span>
+              <span class="esprit-stat-item">
+                <i class="pi pi-clock"></i>
+                {{ getReadingTime() }}s read
+              </span>
+            </div>
+          </div>
+          <div class="esprit-field-error" *ngIf="isFieldInvalid('description')">
+            <i class="pi pi-exclamation-triangle"></i>
+            {{ validationErrors['description'] }}
+          </div>
+        </div>
+
+        <!-- Form Progress -->
+        <div class="esprit-form-progress">
+          <div class="esprit-progress-bar">
+            <div class="esprit-progress-fill" [style.width.%]="getFormProgress()"></div>
+          </div>
+          <span class="esprit-progress-text">{{ getFormProgress() }}% Complete</span>
+        </div>
+      </form>
+    </div>
+    
+    <ng-template pTemplate="footer">
+      <div class="esprit-dialog-footer">
+        <button type="button" class="esprit-btn-secondary" (click)="hideDialog()">
+          <i class="pi pi-times"></i>
+          <span>Cancel</span>
+        </button>
+        <button 
+            type="button" 
+            class="esprit-btn-primary"
+            (click)="saveCategory()"
+            [disabled]="loading || !isFormValid">
+          <i class="pi" [ngClass]="loading ? 'pi-spin pi-spinner' : 'pi-check'"></i>
+          <span>{{ loading ? 'Creating...' : 'Create Category' }}</span>
+        </button>
+      </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>

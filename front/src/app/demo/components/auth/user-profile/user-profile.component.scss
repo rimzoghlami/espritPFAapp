@@ -1,0 +1,364 @@
+:host {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(rgba(220, 38, 38, 0.05) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.esprit-profile-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.esprit-profile-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(220, 38, 38, 0.08) 0%, rgba(255, 255, 255, 0) 60%);
+    z-index: -1;
+    opacity: 0.6;
+    animation: rotate 30s linear infinite;
+  }
+}
+
+/* Profile Header with Fixed Avatar */
+.esprit-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid rgba(220, 38, 38, 0.1);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 1.5rem;
+  }
+}
+
+.esprit-profile-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.esprit-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 32px;
+  font-weight: 600;
+  border: 4px solid white;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+.esprit-avatar-status-large {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: #10b981;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.esprit-profile-info {
+  flex: 1;
+}
+
+.esprit-profile-name {
+  font-size: 2rem;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.esprit-profile-role {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #dc2626;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+/* Profile Details with Simple Icons */
+.esprit-profile-details {
+  margin-bottom: 3rem;
+}
+
+.esprit-detail-section {
+  margin-bottom: 2.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.esprit-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(220, 38, 38, 0.1);
+
+  i {
+    color: #dc2626;
+    font-size: 1.3rem;
+  }
+}
+
+.esprit-detail-grid {
+  display: grid;
+  gap: 1rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+.esprit-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(249, 250, 251, 0.8);
+  border-radius: 16px;
+  border: 1px solid rgba(220, 38, 38, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(220, 38, 38, 0.02);
+    border-color: rgba(220, 38, 38, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+
+    .esprit-detail-icon {
+      background: rgba(220, 38, 38, 0.15);
+      transform: scale(1.05);
+    }
+  }
+}
+
+.esprit-detail-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(220, 38, 38, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc2626;
+  font-size: 1.25rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.esprit-detail-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.esprit-detail-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.esprit-detail-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111827;
+  word-break: break-word;
+
+  &.esprit-status-active {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #10b981;
+    font-weight: 600;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+/* Profile Actions */
+.esprit-profile-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding-top: 2rem;
+  border-top: 2px solid rgba(220, 38, 38, 0.1);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.esprit-btn-primary {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  color: white !important;
+  border: none !important;
+  padding: 1rem 2rem !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  letter-spacing: 0.025em !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25) !important;
+  transition: all 0.3s ease !important;
+  min-width: 160px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+
+  i {
+    font-size: 1rem !important;
+  }
+
+  span {
+    font-weight: 600 !important;
+  }
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.35) !important;
+  }
+
+  &:active {
+    transform: translateY(0) !important;
+  }
+}
+
+.esprit-btn-secondary {
+  background: rgba(107, 114, 128, 0.1) !important;
+  color: #374151 !important;
+  border: 2px solid rgba(107, 114, 128, 0.2) !important;
+  padding: 1rem 2rem !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  letter-spacing: 0.025em !important;
+  transition: all 0.3s ease !important;
+  min-width: 160px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+
+  i {
+    font-size: 1rem !important;
+  }
+
+  span {
+    font-weight: 600 !important;
+  }
+
+  &:hover:not(:disabled) {
+    background: rgba(107, 114, 128, 0.15) !important;
+    border-color: rgba(107, 114, 128, 0.3) !important;
+    color: #111827 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2) !important;
+  }
+
+  &:active {
+    transform: translateY(0) !important;
+  }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  :host {
+    padding: 1rem;
+  }
+
+  .esprit-profile-card {
+    padding: 1.5rem;
+  }
+
+  .esprit-profile-name {
+    font-size: 1.5rem;
+  }
+
+  .esprit-avatar-large {
+    width: 64px;
+    height: 64px;
+    font-size: 24px;
+  }
+
+  .esprit-detail-item {
+    padding: 1rem;
+  }
+
+  .esprit-detail-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+}

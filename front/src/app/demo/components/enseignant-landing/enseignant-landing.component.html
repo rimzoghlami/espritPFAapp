@@ -1,0 +1,127 @@
+<!-- Modern Esprit Educational Platform -->
+<div class="esprit-enseignant-app">
+  <!-- Futuristic Header -->
+  <header class="esprit-header">
+    <div class="esprit-header-content">
+      <!-- Logo Section -->
+      <div class="esprit-logo-section">
+        <img src="assets/layout/images/espritLogo.png" alt="Esprit" class="esprit-logo">
+        <div class="esprit-brand-text">
+          <h1 class="esprit-title">Formation Hub</h1>
+          <span class="esprit-subtitle">Educational Excellence Platform</span>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="esprit-nav">
+        <button 
+          class="esprit-nav-btn" 
+          [class.active]="isActive('/enseignant/formations')"
+          (click)="navigateToFormations()">
+          <i class="pi pi-book"></i>
+          <span>Formations</span>
+        </button>
+        <button 
+          class="esprit-nav-btn" 
+          [class.active]="isActive('/enseignant/reservations')"
+          (click)="navigateToReservations()">
+          <i class="pi pi-calendar"></i>
+          <span>My Reservations</span>
+        </button>
+        <button 
+          class="esprit-nav-btn" 
+          [class.active]="isActive('/enseignant/about')"
+          (click)="navigateToAbout()">
+          <i class="pi pi-info-circle"></i>
+          <span>About</span>
+        </button>
+      </nav>
+
+      <!-- User Actions -->
+      <div class="esprit-user-actions">
+        <div class="esprit-user-info">
+          <div class="esprit-avatar">
+            <div class="esprit-avatar-circle">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="esprit-avatar-status"></div>
+          </div>
+          <span>Enseignant</span>
+        </div>
+        <button 
+          pButton 
+          pRipple 
+          class="esprit-btn-profile"
+          (click)="navigateToProfile()">
+          <i class="pi pi-user"></i>
+          <span>Profile</span>
+        </button>
+        <button 
+          pButton 
+          pRipple 
+          class="esprit-btn-logout"
+          (click)="logout()">
+          <i class="pi pi-sign-out"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content with Futuristic Design -->
+  <main class="esprit-main-content">
+    <div class="esprit-content-wrapper">
+      <!-- Welcome Banner (only show on dashboard) -->
+      <div class="esprit-welcome-banner" *ngIf="showWelcomeBanner()">
+        <div class="esprit-welcome-content">
+          <h2 class="esprit-welcome-title">Welcome to Your Learning Journey</h2>
+          <p class="esprit-welcome-text">Discover, learn, and grow with our comprehensive formation platform</p>
+          <div class="esprit-stats">
+            <div class="esprit-stat-item">
+              <i class="pi pi-book"></i>
+              <span class="esprit-stat-number">50+</span>
+              <span class="esprit-stat-label">Formations</span>
+            </div>
+            <div class="esprit-stat-item">
+              <i class="pi pi-users"></i>
+              <span class="esprit-stat-number">1000+</span>
+              <span class="esprit-stat-label">Students</span>
+            </div>
+            <div class="esprit-stat-item">
+              <i class="pi pi-star"></i>
+              <span class="esprit-stat-number">4.9</span>
+              <span class="esprit-stat-label">Rating</span>
+            </div>
+          </div>
+        </div>
+        <div class="esprit-welcome-visual">
+          <div class="esprit-floating-elements">
+            <div class="esprit-float-item esprit-float-1"></div>
+            <div class="esprit-float-item esprit-float-2"></div>
+            <div class="esprit-float-item esprit-float-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Router Outlet with Animation -->
+      <div class="esprit-page-content esprit-fade-in">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </main>
+
+  <!-- Futuristic Footer -->
+  <footer class="esprit-footer">
+    <div class="esprit-footer-content">
+      <div class="esprit-footer-brand">
+        <img src="assets/layout/images/espritLogo.png" alt="Esprit" class="esprit-footer-logo">
+        <span>© 2024 Esprit. Empowering Education Through Technology.</span>
+      </div>
+      <div class="esprit-footer-links">
+        <a href="#" class="esprit-footer-link">Support</a>
+        <a href="#" class="esprit-footer-link">Privacy</a>
+        <a href="#" class="esprit-footer-link">Terms</a>
+      </div>
+    </div>
+  </footer>
+</div>

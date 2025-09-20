@@ -1,0 +1,1051 @@
+<!-- Enhanced Modern Esprit Admin Header -->
+<div class="esprit-admin-container">
+  <div class="esprit-admin-header">
+    <div class="esprit-header-content">
+      <div class="esprit-header-left">
+        <div class="esprit-header-icon-wrapper">
+          <div class="esprit-header-icon">
+            <i class="pi pi-users"></i>
+          </div>
+          <div class="esprit-icon-pulse"></div>
+        </div>
+        <div class="esprit-header-text">
+          <h1 class="esprit-title">Enseignant Management</h1>
+          <p class="esprit-subtitle">
+            <i class="pi pi-info-circle"></i>
+            Manage teachers and educational staff with advanced controls
+          </p>
+        </div>
+      </div>
+      <div class="esprit-header-actions">
+        <div class="esprit-action-group">
+          <button 
+            pButton 
+            type="button"
+            icon="pi pi-refresh" 
+            class="esprit-btn-outline"
+            (click)="loadEnseignants()"
+            pTooltip="Refresh Data"
+            tooltipPosition="bottom"
+            [loading]="loading">
+          </button>
+          <button 
+            pButton 
+            type="button"
+            icon="pi pi-download" 
+            class="esprit-btn-outline"
+            (click)="exportEnseignants()"
+            pTooltip="Export Data"
+            tooltipPosition="bottom">
+          </button>
+          <button 
+            pButton 
+            type="button"
+            label="Add Enseignant" 
+            icon="pi pi-plus" 
+            class="esprit-btn-primary esprit-btn-glow"
+            (click)="showAddDialog()">
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enhanced Statistics Dashboard -->
+  <div class="esprit-stats-grid">
+    <div class="esprit-stat-card esprit-stat-primary" [class.esprit-stat-loading]="loading">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-users"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ enseignants.length }}</div>
+        <div class="esprit-stat-label">Total Enseignants</div>
+        <div class="esprit-stat-trend">
+          <i class="pi pi-arrow-up"></i>
+          <span>Active Directory</span>
+        </div>
+      </div>
+      <div class="esprit-stat-overlay"></div>
+    </div>
+    <div class="esprit-stat-card esprit-stat-success" [class.esprit-stat-loading]="loading">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ getActiveEnseignantsCount() }}</div>
+        <div class="esprit-stat-label">Active Teachers</div>
+        <div class="esprit-stat-trend">
+          <i class="pi pi-arrow-up"></i>
+          <span>{{ enseignants.length > 0 ? ((getActiveEnseignantsCount() / enseignants.length) * 100).toFixed(0) : 0 }}% active</span>
+        </div>
+      </div>
+      <div class="esprit-stat-overlay"></div>
+    </div>
+    <div class="esprit-stat-card esprit-stat-info" [class.esprit-stat-loading]="loading">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-envelope"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ getVerifiedEmailsCount() }}</div>
+        <div class="esprit-stat-label">Verified Emails</div>
+        <div class="esprit-stat-trend">
+          <i class="pi pi-shield"></i>
+          <span>{{ enseignants.length > 0 ? ((getVerifiedEmailsCount() / enseignants.length) * 100).toFixed(0) : 0 }}% verified</span>
+        </div>
+      </div>
+      <div class="esprit-stat-overlay"></div>
+    </div>
+    <div class="esprit-stat-card esprit-stat-warning" [class.esprit-stat-loading]="loading">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ getRecentEnseignantsCount() }}</div>
+        <div class="esprit-stat-label">Recent Additions</div>
+        <div class="esprit-stat-trend">
+          <i class="pi pi-calendar"></i>
+          <span>Last 30 days</span>
+        </div>
+      </div>
+      <div class="esprit-stat-overlay"></div>
+    </div>
+  </div>
+
+  <!-- Enhanced Enseignants Table Section -->
+  <div class="esprit-table-section">
+    <div class="esprit-table-header">
+      <div class="esprit-table-title">
+        <h2 class="esprit-section-title">
+          <i class="pi pi-list"></i>
+          Enseignants Directory
+        </h2>
+        <p class="esprit-section-subtitle">Comprehensive list of all teaching staff</p>
+      </div>
+      
+      <!-- Enhanced Search and Filter Controls -->
+      <div class="esprit-table-controls">
+        <div class="esprit-search-wrapper">
+          <div class="esprit-search-container">
+            <i class="pi pi-search esprit-search-icon"></i>
+            <input 
+              type="text" 
+              pInputText 
+              placeholder="Search enseignants by name, email, or phone..."
+              class="esprit-search-input"
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange($event)">
+            <button 
+              *ngIf="searchTerm"
+              pButton
+              type="button"
+              icon="pi pi-times" 
+              class="esprit-search-clear"
+              (click)="clearSearch()"
+              pTooltip="Clear search">
+            </button>
+          </div>
+        </div>
+        
+        <div class="esprit-filter-controls">
+          <p-dropdown 
+            [options]="roleOptions" 
+            [(ngModel)]="selectedRole"
+            placeholder="Filter by Role"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            class="esprit-filter-dropdown"
+            (onChange)="onRoleFilterChange()">
+            <ng-template pTemplate="selectedItem" let-option>
+              <div class="esprit-dropdown-item">
+                <i class="pi pi-user-edit"></i>
+                <span>{{ option.label }}</span>
+              </div>
+            </ng-template>
+          </p-dropdown>
+          
+          <p-dropdown 
+            [options]="statusOptions" 
+            [(ngModel)]="selectedStatus"
+            placeholder="Filter by Status"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            class="esprit-filter-dropdown"
+            (onChange)="onStatusFilterChange()">
+            <ng-template pTemplate="selectedItem" let-option>
+              <div class="esprit-dropdown-item">
+                <i class="pi pi-circle-fill" [style.color]="option.color"></i>
+                <span>{{ option.label }}</span>
+              </div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Results Summary -->
+    <div class="esprit-results-summary" *ngIf="filteredEnseignants">
+      <div class="esprit-results-info">
+        <i class="pi pi-info-circle"></i>
+        <span>Showing {{ filteredEnseignants.length }} of {{ enseignants.length }} enseignants</span>
+        <span *ngIf="searchTerm || selectedRole || selectedStatus" class="esprit-filter-indicator">
+          (filtered)
+        </span>
+      </div>
+      <div class="esprit-results-actions">
+        <button 
+          *ngIf="searchTerm || selectedRole || selectedStatus"
+          pButton
+          type="button"
+          label="Clear Filters" 
+          icon="pi pi-filter-slash" 
+          class="esprit-btn-outline esprit-btn-sm"
+          (click)="clearAllFilters()">
+        </button>
+      </div>
+    </div>
+    
+    <div class="esprit-table-container">
+      <p-table 
+        [value]="filteredEnseignants || enseignants" 
+        [loading]="loading"
+        [paginator]="true" 
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[5, 10, 25, 50]"
+        styleClass="esprit-table"
+        [globalFilterFields]="['firstName', 'lastName', 'email', 'phoneNumber']"
+        [sortField]="'firstName'"
+        [sortOrder]="1">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="esprit-th-avatar">Profile</th>
+            <th class="esprit-th-name" pSortableColumn="firstName">
+              <div class="esprit-th-content">
+                <span>Name</span>
+                <p-sortIcon field="firstName"></p-sortIcon>
+              </div>
+            </th>
+            <th class="esprit-th-email" pSortableColumn="email">
+              <div class="esprit-th-content">
+                <span>Email</span>
+                <p-sortIcon field="email"></p-sortIcon>
+              </div>
+            </th>
+            <th class="esprit-th-phone">Phone</th>
+            <th class="esprit-th-address">Address</th>
+            <th class="esprit-th-role" pSortableColumn="roleType">
+              <div class="esprit-th-content">
+                <span>Role</span>
+                <p-sortIcon field="roleType"></p-sortIcon>
+              </div>
+            </th>
+            <th class="esprit-th-status">Status</th>
+            <th class="esprit-th-actions">Actions</th>
+          </tr>
+        </ng-template>
+                
+        <ng-template pTemplate="body" let-enseignant let-rowIndex="rowIndex">
+          <tr class="esprit-table-row" [class.esprit-row-even]="rowIndex % 2 === 0">
+            <td class="esprit-td-avatar">
+              <div class="esprit-user-avatar">
+                <div class="esprit-avatar-circle">
+                  <span class="esprit-avatar-initials">{{ getInitials(enseignant) }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="esprit-td-name">
+              <div class="esprit-user-info">
+                <div class="esprit-user-details">
+                  <div class="esprit-name">{{ getFullName(enseignant) }}</div>
+                  <div class="esprit-user-id">#{{ enseignant.id }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="esprit-td-email">
+              <div class="esprit-contact-info">
+                <div class="esprit-email">
+                  <i class="pi pi-envelope"></i>
+                  <span>{{ enseignant.email }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="esprit-td-phone">
+              <div class="esprit-contact-info" *ngIf="enseignant.phoneNumber">
+                <div class="esprit-phone">
+                  <i class="pi pi-phone"></i>
+                  <span>{{ enseignant.phoneNumber }}</span>
+                </div>
+              </div>
+              <div class="esprit-no-data" *ngIf="!enseignant.phoneNumber">
+                <i class="pi pi-minus"></i>
+                <span>Not provided</span>
+              </div>
+            </td>
+            <td class="esprit-td-address">
+              <div class="esprit-address" *ngIf="enseignant.address">
+                <i class="pi pi-map-marker"></i>
+                <span>{{ enseignant.address | slice:0:30 }}{{ enseignant.address && enseignant.address.length > 30 ? '...' : '' }}</span>
+              </div>
+              <div class="esprit-no-data" *ngIf="!enseignant.address">
+                <i class="pi pi-minus"></i>
+                <span>Not provided</span>
+              </div>
+            </td>
+            <td class="esprit-td-role">
+              <p-tag 
+                [value]="enseignant.roleType" 
+                [severity]="enseignant.roleType === 'ENSEIGNANT' ? 'success' : enseignant.roleType === 'ADMIN' ? 'danger' : 'info'"
+                styleClass="esprit-tag">
+                <ng-template pTemplate="content">
+                  <i class="pi pi-user-edit"></i>
+                  <span>{{ enseignant.roleType }}</span>
+                </ng-template>
+              </p-tag>
+            </td>
+            <td class="esprit-td-status">
+              <div class="esprit-status-indicator">
+                <div class="esprit-status-dot esprit-status-active"></div>
+                <span class="esprit-status-text">Active</span>
+              </div>
+            </td>
+            <td class="esprit-td-actions">
+              <div class="esprit-action-buttons">
+                <button 
+                  pButton
+                  type="button"
+                  icon="pi pi-eye" 
+                  class="esprit-btn-info esprit-btn-sm"
+                  (click)="showViewDialog(enseignant)"
+                  pTooltip="View Details"
+                  tooltipPosition="top">
+                </button>
+                <button 
+                  pButton
+                  type="button"
+                  icon="pi pi-pencil" 
+                  class="esprit-btn-warning esprit-btn-sm"
+                  (click)="showEditDialog(enseignant)"
+                  pTooltip="Edit Enseignant"
+                  tooltipPosition="top">
+                </button>
+                <button 
+                  pButton
+                  type="button"
+                  icon="pi pi-trash" 
+                  class="esprit-btn-danger esprit-btn-sm"
+                  (click)="deleteEnseignant(enseignant)"
+                  pTooltip="Delete Enseignant"
+                  tooltipPosition="top">
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+                
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="esprit-empty-message">
+              <div class="esprit-empty-content">
+                <i class="pi pi-users"></i>
+                <h3>No Enseignants Found</h3>
+                <p *ngIf="!searchTerm && !selectedRole && !selectedStatus">No enseignants have been added yet.</p>
+                <p *ngIf="searchTerm || selectedRole || selectedStatus">No enseignants match your current filters.</p>
+                <button 
+                  *ngIf="!searchTerm && !selectedRole && !selectedStatus"
+                  pButton
+                  type="button"
+                  label="Add First Enseignant" 
+                  icon="pi pi-plus" 
+                  class="esprit-btn-primary"
+                  (click)="showAddDialog()">
+                </button>
+                <button 
+                  *ngIf="searchTerm || selectedRole || selectedStatus"
+                  pButton
+                  type="button"
+                  label="Clear Filters" 
+                  icon="pi pi-filter-slash" 
+                  class="esprit-btn-outline"
+                  (click)="clearAllFilters()">
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<!-- Enhanced Add/Edit Enseignant Dialog with Step Wizard -->
+<p-dialog 
+    [(visible)]="displayDialog" 
+    [modal]="true" 
+    [closable]="true"
+    [style]="{width: '900px', maxHeight: '95vh'}"
+    styleClass="esprit-dialog esprit-dialog-enhanced esprit-wizard-dialog"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <!-- Enhanced Red Header Bar -->
+    <ng-template pTemplate="header">
+        <!-- Red Header Bar -->
+        <div class="esprit-red-header-bar">
+            <div class="esprit-header-content">
+                <div class="esprit-header-icon">
+                    <i class="pi pi-user-plus" *ngIf="!editMode"></i>
+                    <i class="pi pi-user-edit" *ngIf="editMode"></i>
+                </div>
+                <div class="esprit-header-text">
+                    <h2>{{ dialogTitle }}</h2>
+                    <p>{{ dialogSubtitle }}</p>
+                </div>
+                <div class="esprit-header-badge">
+                    <span class="esprit-role-badge" [style.background-color]="getRoleColor(enseignantForm.roleType)">
+                        <i [class]="getRoleIcon(enseignantForm.roleType)"></i>
+                        {{ enseignantForm.roleType }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dialog Header Content -->
+        <div class="esprit-dialog-header">
+            <div class="esprit-dialog-title">
+                <h3>{{ editMode ? 'Modify Information' : 'Setup Account' }}</h3>
+                <p class="esprit-subtitle">{{ editMode ? 'Update user details and role assignment' : 'Complete all required fields to create the account' }}</p>
+            </div>
+            
+            <!-- Progress Steps -->
+            <div class="esprit-dialog-progress" *ngIf="!editMode">
+                <div class="esprit-progress-steps">
+                    <div class="esprit-step" [class.esprit-step-active]="currentStep === 1" [class.esprit-step-completed]="currentStep > 1">
+                        <span>1</span>
+                        <label>Personal</label>
+                    </div>
+                    <div class="esprit-step-line" [class.esprit-line-completed]="currentStep > 1"></div>
+                    <div class="esprit-step" [class.esprit-step-active]="currentStep === 2" [class.esprit-step-completed]="currentStep > 2">
+                        <span>2</span>
+                        <label>Contact</label>
+                    </div>
+                    <div class="esprit-step-line" [class.esprit-line-completed]="currentStep > 2"></div>
+                    <div class="esprit-step" [class.esprit-step-active]="currentStep === 3" [class.esprit-step-completed]="currentStep > 3">
+                        <span>3</span>
+                        <label>Security</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    
+    <!-- Enhanced Dialog Content with Step-by-Step Form -->
+    <div class="esprit-dialog-content esprit-wizard-content">
+        
+        <!-- Step 1: Personal Information -->
+        <div class="esprit-form-section esprit-section-animated" *ngIf="currentStep === 1 || editMode">
+            <div class="esprit-section-header">
+                <div class="esprit-section-icon">
+                    <i class="pi pi-user"></i>
+                </div>
+                <div class="esprit-section-info">
+                    <span class="esprit-section-title">Personal Information</span>
+                    <span class="esprit-section-description">Basic details and identification</span>
+                </div>
+                <div class="esprit-section-line"></div>
+                <div class="esprit-section-badge" *ngIf="!editMode">Step 1 of 3</div>
+            </div>
+            
+            <div class="esprit-form-grid">
+                <div class="esprit-form-group esprit-form-group-enhanced">
+                    <label for="firstName" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-user"></i>
+                            First Name
+                        </span>
+                        <span class="esprit-label-required">*</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="firstName"
+                            type="text" 
+                            pInputText 
+                            [(ngModel)]="enseignantForm.firstName" 
+                            placeholder="Enter first name"
+                            class="esprit-input esprit-input-enhanced" 
+                            [class.esprit-input-error]="validationErrors['firstName']"
+                            [class.esprit-input-success]="enseignantForm.firstName && !validationErrors['firstName']"
+                            (input)="onFieldChange('firstName')"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-user"></i>
+                        </div>
+                        <div class="esprit-input-border"></div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="validationErrors['firstName']">
+                        <i class="pi pi-exclamation-triangle"></i>
+                        {{ validationErrors['firstName'] }}
+                    </small>
+                    <small class="esprit-field-success" *ngIf="enseignantForm.firstName && !validationErrors['firstName']">
+                        <i class="pi pi-check"></i>
+                        Looks good!
+                    </small>
+                </div>
+                
+                <div class="esprit-form-group esprit-form-group-enhanced">
+                    <label for="lastName" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-user"></i>
+                            Last Name
+                        </span>
+                        <span class="esprit-label-required">*</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="lastName"
+                            type="text" 
+                            pInputText 
+                            [(ngModel)]="enseignantForm.lastName" 
+                            placeholder="Enter last name"
+                            class="esprit-input esprit-input-enhanced"
+                            [class.esprit-input-error]="validationErrors['lastName']"
+                            [class.esprit-input-success]="enseignantForm.lastName && !validationErrors['lastName']"
+                            (input)="onFieldChange('lastName')"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-user"></i>
+                        </div>
+                        <div class="esprit-input-border"></div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="validationErrors['lastName']">
+                        <i class="pi pi-exclamation-triangle"></i>
+                        {{ validationErrors['lastName'] }}
+                    </small>
+                    <small class="esprit-field-success" *ngIf="enseignantForm.lastName && !validationErrors['lastName']">
+                        <i class="pi pi-check"></i>
+                        Looks good!
+                    </small>
+                </div>
+
+                <!-- Role Management Section -->
+                <div class="esprit-form-group esprit-form-group-enhanced esprit-role-section">
+                    <label for="roleType" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-shield"></i>
+                            User Role
+                        </span>
+                        <span class="esprit-label-required">*</span>
+                    </label>
+                    <div class="esprit-role-selector">
+                        <p-dropdown 
+                            id="roleType"
+                            [(ngModel)]="enseignantForm.roleType" 
+                            [options]="adminRoleOptions" 
+                            optionLabel="label" 
+                            optionValue="value"
+                            placeholder="Select user role"
+                            class="esprit-dropdown esprit-role-dropdown"
+                            [class.esprit-dropdown-error]="validationErrors['roleType']"
+                            [class.esprit-dropdown-success]="enseignantForm.roleType && !validationErrors['roleType']"
+                            (onChange)="onRoleChange()">
+                            <ng-template pTemplate="selectedItem">
+                                <div class="esprit-selected-role" *ngIf="enseignantForm.roleType">
+                                    <i [class]="getRoleIcon(enseignantForm.roleType)" 
+                                       [style.color]="getRoleColor(enseignantForm.roleType)"></i>
+                                    <span>{{ enseignantForm.roleType }}</span>
+                                </div>
+                            </ng-template>
+                            <ng-template let-option pTemplate="item">
+                                <div class="esprit-role-option">
+                                    <div class="esprit-role-icon">
+                                        <i [class]="option.icon" [style.color]="getRoleColor(option.value)"></i>
+                                    </div>
+                                    <div class="esprit-role-info">
+                                        <span class="esprit-role-name">{{ option.label }}</span>
+                                        <span class="esprit-role-desc">{{ option.description }}</span>
+                                    </div>
+                                </div>
+                            </ng-template>
+                        </p-dropdown>
+                    </div>
+                    <div class="esprit-role-description" *ngIf="enseignantForm.roleType">
+                        <i class="pi pi-info-circle"></i>
+                        <span>{{ getRoleDescription(enseignantForm.roleType) }}</span>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="validationErrors['roleType']">
+                        <i class="pi pi-exclamation-triangle"></i>
+                        {{ validationErrors['roleType'] }}
+                    </small>
+                    <small class="esprit-field-success" *ngIf="enseignantForm.roleType && !validationErrors['roleType']">
+                        <i class="pi pi-check"></i>
+                        Role assigned successfully!
+                    </small>
+                </div>
+
+                <!-- Additional fields for edit mode -->
+                <div class="esprit-form-group esprit-form-group-enhanced" *ngIf="editMode">
+                    <label for="department" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-building"></i>
+                            Department
+                        </span>
+                        <span class="esprit-label-optional">(Optional)</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="department"
+                            type="text" 
+                            pInputText 
+                            [(ngModel)]="enseignantForm.department" 
+                            placeholder="Enter department"
+                            class="esprit-input esprit-input-enhanced"
+                            [class.esprit-input-success]="enseignantForm.department && enseignantForm.department.length > 0"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-building"></i>
+                        </div>
+                        <div class="esprit-input-border"></div>
+                    </div>
+                </div>
+
+                <div class="esprit-form-group esprit-form-group-enhanced" *ngIf="editMode">
+                    <label for="specialization" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-star"></i>
+                            Specialization
+                        </span>
+                        <span class="esprit-label-optional">(Optional)</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="specialization"
+                            type="text" 
+                            pInputText 
+                            [(ngModel)]="enseignantForm.specialization" 
+                            placeholder="Enter specialization"
+                            class="esprit-input esprit-input-enhanced"
+                            [class.esprit-input-success]="enseignantForm.specialization && enseignantForm.specialization.length > 0"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-star"></i>
+                        </div>
+                        <div class="esprit-input-border"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 2: Contact Information -->
+        <div class="esprit-form-section esprit-section-animated" *ngIf="currentStep === 2 || editMode">
+            <div class="esprit-section-header">
+                <div class="esprit-section-icon">
+                    <i class="pi pi-envelope"></i>
+                </div>
+                <div class="esprit-section-info">
+                    <span class="esprit-section-title">Contact Information</span>
+                    <span class="esprit-section-description">Communication details and location</span>
+                </div>
+                <div class="esprit-section-line"></div>
+                <div class="esprit-section-badge" *ngIf="!editMode">Step 2 of 3</div>
+            </div>
+            
+            <div class="esprit-form-grid">
+                <div class="esprit-form-group esprit-form-group-full esprit-form-group-enhanced">
+                    <label for="email" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-envelope"></i>
+                            Email Address
+                        </span>
+                        <span class="esprit-label-required">*</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="email"
+                            type="email" 
+                            pInputText 
+                            [(ngModel)]="enseignantForm.email" 
+                            placeholder="Enter email address (e.g., john.doe@esprit.tn)"
+                            class="esprit-input esprit-input-enhanced"
+                            [class.esprit-input-error]="validationErrors['email']"
+                            [class.esprit-input-success]="enseignantForm.email && !validationErrors['email']"
+                            (input)="onFieldChange('email')"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-envelope"></i>
+                        </div>
+                        <div class="esprit-input-border"></div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="validationErrors['email']">
+                        <i class="pi pi-exclamation-triangle"></i>
+                        {{ validationErrors['email'] }}
+                    </small>
+                    <small class="esprit-field-success" *ngIf="enseignantForm.email && !validationErrors['email']">
+                        <i class="pi pi-check"></i>
+                        Valid email format
+                    </small>
+                </div>
+                
+                <div class="esprit-form-group esprit-form-group-enhanced">
+                    <label for="phoneNumber" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-phone"></i>
+                            Phone Number
+                        </span>
+                        <span class="esprit-label-optional">(Optional)</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="phoneNumber"
+                            type="text" 
+                            pInputText 
+                            [(ngModel)]="enseignantForm.phoneNumber" 
+                            placeholder="Enter phone number (e.g., +216 XX XXX XXX)"
+                            class="esprit-input esprit-input-enhanced"
+                            [class.esprit-input-error]="validationErrors['phoneNumber']"
+                            [class.esprit-input-success]="enseignantForm.phoneNumber && !validationErrors['phoneNumber']"
+                            (input)="onFieldChange('phoneNumber')"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-phone"></i>
+                        </div>
+                        <div class="esprit-input-border"></div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="validationErrors['phoneNumber']">
+                        <i class="pi pi-exclamation-triangle"></i>
+                        {{ validationErrors['phoneNumber'] }}
+                    </small>
+                    <small class="esprit-field-success" *ngIf="enseignantForm.phoneNumber && !validationErrors['phoneNumber']">
+                        <i class="pi pi-check"></i>
+                        Phone number added
+                    </small>
+                </div>
+                
+                <div class="esprit-form-group esprit-form-group-enhanced">
+                    <label for="address" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-map-marker"></i>
+                            Address
+                        </span>
+                        <span class="esprit-label-optional">(Optional)</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="address"
+                            type="text" 
+                            pInputText 
+                            [(ngModel)]="enseignantForm.address" 
+                            placeholder="Enter full address"
+                            class="esprit-input esprit-input-enhanced"
+                            [class.esprit-input-success]="enseignantForm.address && enseignantForm.address.length > 0"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-map-marker"></i>
+                        </div>
+                        <div class="esprit-input-border"></div>
+                    </div>
+                    <small class="esprit-field-success" *ngIf="enseignantForm.address && enseignantForm.address.length > 0">
+                        <i class="pi pi-check"></i>
+                        Address added
+                    </small>
+                </div>
+
+                <div class="esprit-form-group esprit-form-group-enhanced">
+                    <label for="emergencyContact" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-exclamation-circle"></i>
+                            Emergency Contact
+                        </span>
+                        <span class="esprit-label-optional">(Optional)</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="emergencyContact"
+                            type="text" 
+                            pInputText 
+                            [(ngModel)]="enseignantForm.emergencyContact" 
+                            placeholder="Enter emergency contact information"
+                            class="esprit-input esprit-input-enhanced"
+                            [class.esprit-input-success]="enseignantForm.emergencyContact && enseignantForm.emergencyContact.length > 0"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-exclamation-circle"></i>
+                        </div>
+                        <div class="esprit-input-border"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 3: Security Section (Only for new enseignants) -->
+        <div class="esprit-form-section esprit-section-animated" *ngIf="(currentStep === 3 && !editMode)">
+            <div class="esprit-section-header">
+                <div class="esprit-section-icon">
+                    <i class="pi pi-lock"></i>
+                </div>
+                <div class="esprit-section-info">
+                    <span class="esprit-section-title">Security</span>
+                    <span class="esprit-section-description">Account access and authentication</span>
+                </div>
+                <div class="esprit-section-line"></div>
+                <div class="esprit-section-badge">Step 3 of 3</div>
+            </div>
+            
+            <div class="esprit-form-grid">
+                <div class="esprit-form-group esprit-form-group-full esprit-form-group-enhanced">
+                    <label for="password" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-lock"></i>
+                            Password
+                        </span>
+                        <span class="esprit-label-required">*</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="password"
+                            type="password" 
+                            pInputText 
+                            [(ngModel)]="enseignantForm.password" 
+                            placeholder="Enter secure password (min. 8 characters)"
+                            class="esprit-input esprit-input-enhanced"
+                            [class.esprit-input-error]="validationErrors['password']"
+                            [class.esprit-input-success]="enseignantForm.password && !validationErrors['password']"
+                            (input)="onFieldChange('password')"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-lock"></i>
+                        </div>
+                        <div class="esprit-input-border"></div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="validationErrors['password']">
+                        <i class="pi pi-exclamation-triangle"></i>
+                        {{ validationErrors['password'] }}
+                    </small>
+                    <small class="esprit-field-success" *ngIf="enseignantForm.password && !validationErrors['password']">
+                        <i class="pi pi-check"></i>
+                        Strong password
+                    </small>
+                    
+                    <!-- Password Strength Indicator -->
+                    <div class="esprit-password-strength" *ngIf="enseignantForm.password">
+                        <div class="esprit-strength-bar">
+                            <div class="esprit-strength-fill" 
+                                 [style.width.%]="getPasswordStrength(enseignantForm.password)"
+                                 [style.background-color]="getPasswordStrengthColor(enseignantForm.password)"></div>
+                        </div>
+                        <span class="esprit-strength-text" [style.color]="getPasswordStrengthColor(enseignantForm.password)">
+                            {{ getPasswordStrengthText(enseignantForm.password) }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="esprit-form-group esprit-form-group-full esprit-form-group-enhanced">
+                    <label for="confirmPassword" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-lock"></i>
+                            Confirm Password
+                        </span>
+                        <span class="esprit-label-required">*</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="confirmPassword"
+                            type="password" 
+                            pInputText 
+                            [(ngModel)]="enseignantForm.confirmPassword" 
+                            placeholder="Confirm your password"
+                            class="esprit-input esprit-input-enhanced"
+                            [class.esprit-input-error]="validationErrors['confirmPassword']"
+                            [class.esprit-input-success]="enseignantForm.confirmPassword && !validationErrors['confirmPassword']"
+                            (input)="onFieldChange('confirmPassword')"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-lock"></i>
+                        </div>
+                        <div class="esprit-input-border"></div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="validationErrors['confirmPassword']">
+                        <i class="pi pi-exclamation-triangle"></i>
+                        {{ validationErrors['confirmPassword'] }}
+                    </small>
+                    <small class="esprit-field-success" *ngIf="enseignantForm.confirmPassword && !validationErrors['confirmPassword']">
+                        <i class="pi pi-check"></i>
+                        Passwords match
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Notes Section (Edit Mode) -->
+        <div class="esprit-form-section esprit-section-animated" *ngIf="editMode">
+            <div class="esprit-section-header">
+                <div class="esprit-section-icon">
+                    <i class="pi pi-file-edit"></i>
+                </div>
+                <div class="esprit-section-info">
+                    <span class="esprit-section-title">Additional Information</span>
+                    <span class="esprit-section-description">Extra details and notes</span>
+                </div>
+                <div class="esprit-section-line"></div>
+            </div>
+            
+            <div class="esprit-form-grid">
+                <div class="esprit-form-group esprit-form-group-full esprit-form-group-enhanced">
+                    <label for="notes" class="esprit-label">
+                        <span class="esprit-label-text">
+                            <i class="pi pi-file-edit"></i>
+                            Notes
+                        </span>
+                        <span class="esprit-label-optional">(Optional)</span>
+                    </label>
+                    <div class="esprit-textarea-wrapper">
+                        <textarea 
+                            id="notes"
+                            pInputTextarea 
+                            [(ngModel)]="enseignantForm.notes" 
+                            placeholder="Enter any additional notes or comments"
+                            rows="3"
+                            class="esprit-textarea esprit-input-enhanced"
+                            [class.esprit-input-success]="enseignantForm.notes && enseignantForm.notes.length > 0">
+                        </textarea>
+                        <div class="esprit-textarea-icon">
+                            <i class="pi pi-file-edit"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced Dialog Footer with Step Navigation -->
+    <ng-template pTemplate="footer">
+        <div class="esprit-dialog-footer">
+            <div class="esprit-footer-left">
+                <button 
+                    *ngIf="!editMode && currentStep > 1"
+                    pButton
+                    type="button"
+                    label="Previous" 
+                    icon="pi pi-arrow-left" 
+                    class="esprit-btn-secondary"
+                    (click)="previousStep()">
+                </button>
+            </div>
+            
+            <div class="esprit-footer-right">
+                <button 
+                    pButton
+                    type="button"
+                    label="Cancel" 
+                    icon="pi pi-times" 
+                    class="esprit-btn-secondary"
+                    (click)="hideDialog()">
+                </button>
+                
+                <button 
+                    *ngIf="!editMode && currentStep < totalSteps"
+                    pButton
+                    type="button"
+                    label="Next" 
+                    icon="pi pi-arrow-right" 
+                    iconPos="right"
+                    class="esprit-btn-primary"
+                    [disabled]="!canProceedToNextStep()"
+                    (click)="nextStep()">
+                </button>
+                
+                <button 
+                    *ngIf="editMode || currentStep === totalSteps"
+                    pButton
+                    type="button"
+                    [label]="editMode ? 'Update Enseignant' : 'Create Enseignant'" 
+                    [icon]="editMode ? 'pi pi-check' : 'pi pi-plus'" 
+                    class="esprit-btn-primary"
+                    [disabled]="!isFormValid"
+                    (click)="saveEnseignant()">
+                </button>
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- View Enseignant Dialog -->
+<p-dialog 
+    [(visible)]="displayViewDialog" 
+    [modal]="true" 
+    [closable]="true"
+    [style]="{width: '600px'}"
+    styleClass="esprit-dialog esprit-view-dialog"
+    [draggable]="false"
+    [resizable]="false">
+    
+    <ng-template pTemplate="header">
+        <div class="esprit-view-header">
+            <div class="esprit-view-avatar">
+                <span class="esprit-avatar-initials">{{ selectedEnseignant ? getInitials(selectedEnseignant) : '' }}</span>
+            </div>
+            <div class="esprit-view-info">
+                <h2>{{ selectedEnseignant ? getFullName(selectedEnseignant) : '' }}</h2>
+                <p>Enseignant Profile</p>
+            </div>
+        </div>
+    </ng-template>
+    
+    <div class="esprit-view-content" *ngIf="selectedEnseignant">
+        <div class="esprit-view-section">
+            <h3><i class="pi pi-user"></i> Personal Information</h3>
+            <div class="esprit-view-grid">
+                <div class="esprit-view-item">
+                    <label>First Name:</label>
+                    <span>{{ selectedEnseignant.firstName || 'N/A' }}</span>
+                </div>
+                <div class="esprit-view-item">
+                    <label>Last Name:</label>
+                    <span>{{ selectedEnseignant.lastName || 'N/A' }}</span>
+                </div>
+                <div class="esprit-view-item">
+                    <label>Role:</label>
+                    <span>{{ selectedEnseignant.roleType || 'N/A' }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="esprit-view-section">
+            <h3><i class="pi pi-envelope"></i> Contact Information</h3>
+            <div class="esprit-view-grid">
+                <div class="esprit-view-item">
+                    <label>Email:</label>
+                    <span>{{ selectedEnseignant.email || 'N/A' }}</span>
+                </div>
+                <div class="esprit-view-item">
+                    <label>Phone:</label>
+                    <span>{{ selectedEnseignant.phoneNumber || 'N/A' }}</span>
+                </div>
+                <div class="esprit-view-item esprit-view-item-full">
+                    <label>Address:</label>
+                    <span>{{ selectedEnseignant.address || 'N/A' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <ng-template pTemplate="footer">
+        <div class="esprit-view-footer">
+            <button 
+                pButton
+                type="button"
+                label="Edit" 
+                icon="pi pi-pencil" 
+                class="esprit-btn-primary"
+                (click)="showEditDialog(selectedEnseignant!); displayViewDialog = false">
+            </button>
+            <button 
+                pButton
+                type="button"
+                label="Close" 
+                icon="pi pi-times" 
+                class="esprit-btn-secondary"
+                (click)="hideDialog()">
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
+

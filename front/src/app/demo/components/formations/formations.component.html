@@ -1,0 +1,70 @@
+<div class="formations-container">
+  <h2 class="esprit-section-title">Formations Management</h2>
+  
+  <!-- Add Formation Card -->
+  <div *ngIf="isAdmin" class="esprit-form-card">
+    <div class="esprit-form-header">
+      <h3>Add New Formation</h3>
+      <i class="pi pi-plus-circle"></i>
+    </div>
+    
+    <form class="esprit-form-content">
+      <div class="esprit-form-group">
+        <label for="title">Title</label>
+        <input 
+          type="text" 
+          id="title" 
+          [(ngModel)]="newFormation.titre" 
+          name="title"
+          pInputText
+          placeholder="Enter formation title"
+          required>
+      </div>
+      
+      <div class="esprit-form-group">
+        <label for="description">Description</label>
+        <textarea 
+          id="description" 
+          [(ngModel)]="newFormation.description" 
+          name="description"
+          pInputTextarea
+          rows="5"
+          placeholder="Enter detailed description"
+          required></textarea>
+      </div>
+      
+      <div class="esprit-form-group">
+        <label for="image">Image</label>
+        <p-fileUpload 
+          id="image"
+          name="image"
+          mode="basic"
+          accept="image/*"
+          chooseLabel="Select Image"
+          (onSelect)="onFileSelected($event)">
+        </p-fileUpload>
+      </div>
+      
+      <button 
+        pButton 
+        type="submit" 
+        label="Add Formation"
+        icon="pi pi-check"
+        [disabled]="!newFormation.titre || !newFormation.description"
+        (click)="addFormation()"
+        class="esprit-button-primary"></button>
+    </form>
+  </div>
+  
+  <!-- Formations List -->
+  <div class="esprit-formations-list">
+    <div *ngFor="let formation of formations" class="formation-item">
+      <h3>{{ formation.titre }}</h3>
+      <p>{{ formation.description }}</p>
+      <p *ngIf="formation.imageUrl">
+        <img [src]="formation.imageUrl" alt="Formation image" style="max-width: 100px;">
+      </p>
+      <button (click)="deleteFormation(formation.id!)" *ngIf="isAdmin">Delete</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,71 @@
+<div class="esprit-sidebar">
+    <!-- Sidebar Header -->
+    <div class="esprit-sidebar-header">
+        <div class="esprit-sidebar-brand">
+            <img src="assets/layout/images/espritLogo.png" alt="Esprit Logo" class="esprit-sidebar-logo">
+            <div class="esprit-sidebar-title">
+                <span class="esprit-sidebar-name">Admin Panel</span>
+                <span class="esprit-sidebar-subtitle">Management System</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav class="esprit-sidebar-nav">
+        <ul class="esprit-menu">
+            <ng-container *ngFor="let item of model; let i = index;">
+                <li *ngIf="item.separator" class="esprit-menu-separator">
+                    <div class="esprit-separator-line"></div>
+                </li>
+                <li *ngIf="!item.separator" 
+                    class="esprit-menu-section" 
+                    [ngClass]="item.styleClass">
+                    
+                    <!-- Top-level clickable link (Dashboard, Profile, etc.) -->
+                    <a *ngIf="item.routerLink" [routerLink]="item.routerLink" class="esprit-menu-link" routerLinkActive="esprit-menu-active">
+                        <div class="esprit-menu-content">
+                            <i [class]="item.icon" class="esprit-menu-icon"></i>
+                            <span class="esprit-menu-label">{{ item.label }}</span>
+                        </div>
+                        <div class="esprit-menu-indicator"></div>
+                    </a>
+
+                    <!-- Section Header for non-clickable or parent sections -->
+                    <div class="esprit-section-header" *ngIf="item.label && !item.routerLink">
+                        <i [class]="item.icon" class="esprit-section-icon"></i>
+                        <span class="esprit-section-label">{{ item.label }}</span>
+                    </div>
+                    
+                    <!-- Section Items -->
+                    <ul class="esprit-section-items" *ngIf="item.items">
+                        <li *ngFor="let subItem of item.items" 
+                            class="esprit-menu-item"
+                            [ngClass]="subItem.styleClass">
+                            <a [routerLink]="subItem.routerLink" 
+                               class="esprit-menu-link"
+                               routerLinkActive="esprit-menu-active">
+                                <div class="esprit-menu-content">
+                                    <i [class]="subItem.icon" class="esprit-menu-icon"></i>
+                                    <span class="esprit-menu-label">{{ subItem.label }}</span>
+                                    <span *ngIf="subItem.badge" 
+                                          class="esprit-menu-badge">{{ subItem.badge }}</span>
+                                </div>
+                                <div class="esprit-menu-indicator"></div>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ng-container>
+        </ul>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="esprit-sidebar-footer">
+        <div class="esprit-footer-content">
+            <div class="esprit-footer-info">
+                <span class="esprit-footer-version">v2.0.1</span>
+                <span class="esprit-footer-copyright">© 2024 ESPRIT</span>
+            </div>
+        </div>
+    </div>
+</div>

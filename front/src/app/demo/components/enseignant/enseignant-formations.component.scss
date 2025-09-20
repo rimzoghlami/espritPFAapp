@@ -1,0 +1,799 @@
+/* Modern Esprit Formation Cards Styles */
+.esprit-formations-container {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  min-height: 100vh;
+}
+
+/* Enhanced Filter Section */
+.esprit-filter-section {
+  margin-bottom: 3rem;
+}
+
+.esprit-filter-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.esprit-filter-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  
+  i {
+    color: var(--esprit-red);
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    margin: 0;
+    color: var(--esprit-black);
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
+}
+
+.esprit-filter-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.esprit-filter-label {
+  font-weight: 500;
+  color: var(--esprit-gray-dark);
+  min-width: 80px;
+}
+
+/* Formation Cards Grid */
+.esprit-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+/* Individual Formation Card */
+.esprit-formation-card {
+  position: relative;
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 60px rgba(220, 38, 38, 0.15);
+  }
+}
+
+/* Card Header with Image */
+.esprit-card-header {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+
+.esprit-card-image {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.3) 0%, rgba(185, 28, 28, 0.5) 100%);
+  }
+}
+
+.esprit-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem;
+}
+
+.esprit-card-category,
+.esprit-card-mode {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--esprit-black);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  
+  i {
+    color: var(--esprit-red);
+  }
+}
+
+/* Card Content */
+.esprit-card-content {
+  padding: 2rem;
+}
+
+.esprit-card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  
+  h3 {
+    margin: 0;
+    color: var(--esprit-black);
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.3;
+    flex: 1;
+  }
+}
+
+.esprit-card-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  
+  i {
+    font-size: 1rem;
+  }
+}
+
+.esprit-card-description {
+  margin-bottom: 1.5rem;
+  
+  p {
+    margin: 0;
+    color: var(--esprit-text-secondary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+}
+
+/* Detailed Information Section */
+.esprit-details-section {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.esprit-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(248, 250, 252, 0.8);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  
+  i {
+    color: var(--esprit-red);
+    font-size: 1.25rem;
+    min-width: 24px;
+    text-align: center;
+  }
+  
+  &:hover {
+    background: rgba(220, 38, 38, 0.05);
+  }
+}
+
+.esprit-detail-label {
+  font-size: 0.75rem;
+  color: var(--esprit-gray);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.esprit-detail-value {
+  font-size: 0.95rem;
+  color: var(--esprit-black);
+  font-weight: 600;
+}
+
+/* Card Actions */
+.esprit-card-actions {
+  padding: 0 2rem 2rem;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Enhanced Button Base Styles */
+.esprit-btn-reserve,
+.esprit-btn-cancel,
+.esprit-btn-details {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  
+  i {
+    font-size: 1rem;
+  }
+  
+  span {
+    font-weight: 600;
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+.esprit-btn-reserve {
+  flex: 1;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(135deg, #0d9488 0%, #047857 100%);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.esprit-btn-cancel {
+  flex: 1;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(239, 68, 68, 0.4);
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.esprit-btn-details {
+  flex: 0 0 auto;
+  min-width: 120px;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  color: white;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .esprit-formations-container {
+    padding: 1rem;
+  }
+  
+  .esprit-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .esprit-filter-card {
+    padding: 1.5rem;
+  }
+  
+  .esprit-filter-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .esprit-formation-card {
+    &:hover {
+      transform: translateY(-4px) scale(1.01);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .esprit-card-overlay {
+    padding: 1rem;
+  }
+  
+  .esprit-card-content {
+    padding: 1.5rem;
+  }
+  
+  .esprit-card-actions {
+    padding: 0 1.5rem 1.5rem;
+  }
+  
+  .esprit-card-title h3 {
+    font-size: 1.25rem;
+  }
+  
+  .esprit-detail-row {
+    padding: 0.75rem;
+  }
+  
+  .esprit-card-actions {
+    flex-direction: column;
+    
+    .esprit-btn-reserve,
+    .esprit-btn-cancel,
+    .esprit-btn-details {
+      flex: 1;
+      width: 100%;
+    }
+  }
+}
+
+/* Formation Details Dialog Styles */
+.esprit-formation-dialog {
+  .p-dialog-header {
+    background: linear-gradient(135deg, var(--esprit-red) 0%, var(--esprit-red-dark) 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 1.5rem 2rem;
+    
+    .p-dialog-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+  }
+  
+  .p-dialog-content {
+    padding: 0;
+    border-radius: 0 0 20px 20px;
+    overflow: hidden;
+  }
+}
+
+.esprit-dialog-content {
+  .esprit-dialog-header {
+    position: relative;
+    height: 250px;
+    overflow: hidden;
+    
+    .esprit-dialog-image {
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
+      }
+    }
+    
+    .esprit-dialog-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+      color: white;
+      
+      h2 {
+        margin: 0 0 1rem 0;
+        font-size: 2rem;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
+    }
+    
+    .esprit-dialog-badges {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+  }
+  
+  .esprit-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    
+    &.esprit-badge-category {
+      background: rgba(220, 38, 38, 0.9);
+      color: white;
+    }
+    
+    &.esprit-badge-mode {
+      background: rgba(0, 123, 191, 0.9);
+      color: white;
+    }
+    
+    &.esprit-badge-status {
+      background: rgba(16, 185, 129, 0.9);
+      color: white;
+    }
+  }
+  
+  .esprit-dialog-body {
+    padding: 2rem;
+  }
+  
+  .esprit-section {
+    margin-bottom: 2rem;
+    
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0 0 1rem 0;
+      color: var(--esprit-black);
+      font-size: 1.25rem;
+      font-weight: 600;
+      
+      i {
+        color: var(--esprit-red);
+        font-size: 1.125rem;
+      }
+    }
+    
+    p {
+      margin: 0;
+      color: var(--esprit-text-secondary);
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+  }
+  
+  .esprit-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  
+  .esprit-detail-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: rgba(248, 250, 252, 0.8);
+    border-radius: 16px;
+    border: 1px solid rgba(220, 38, 38, 0.1);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(220, 38, 38, 0.05);
+      border-color: rgba(220, 38, 38, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    i {
+      color: var(--esprit-red);
+      font-size: 1.5rem;
+      min-width: 24px;
+      text-align: center;
+    }
+  }
+  
+  .esprit-detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .esprit-detail-title {
+    font-size: 0.75rem;
+    color: var(--esprit-gray);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .esprit-detail-text {
+    font-size: 1rem;
+    color: var(--esprit-black);
+    font-weight: 600;
+  }
+  
+  .esprit-link {
+    color: var(--esprit-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: var(--esprit-blue-dark);
+      text-decoration: underline;
+    }
+  }
+}
+
+.esprit-dialog-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem 2rem;
+  background: rgba(248, 250, 252, 0.5);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  
+  .esprit-btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--esprit-gray-light);
+    color: var(--esprit-gray-dark);
+    border: 1px solid var(--esprit-gray);
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: var(--esprit-gray);
+      color: white;
+    }
+  }
+  
+  .esprit-btn-primary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    }
+  }
+  
+  .esprit-btn-warning {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+    }
+  }
+}
+
+/* Dialog Responsive Design */
+@media (max-width: 768px) {
+  .esprit-formation-dialog {
+    .p-dialog-header {
+      padding: 1rem 1.5rem;
+    }
+  }
+  
+  .esprit-dialog-content {
+    .esprit-dialog-header {
+      height: 200px;
+      
+      .esprit-dialog-overlay {
+        padding: 1.5rem;
+        
+        h2 {
+          font-size: 1.5rem;
+        }
+      }
+    }
+    
+    .esprit-dialog-body {
+      padding: 1.5rem;
+    }
+    
+    .esprit-details-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .esprit-dialog-footer {
+    padding: 1rem 1.5rem;
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+}
+
+/* Cancel Reservation Dialog Styles */
+.esprit-cancel-dialog {
+  .p-dialog-header {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 1.5rem 2rem;
+    
+    .p-dialog-title {
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+  }
+  
+  .p-dialog-content {
+    padding: 2rem;
+    border-radius: 0 0 20px 20px;
+  }
+}
+
+.esprit-cancel-content {
+  text-align: center;
+  
+  .esprit-cancel-icon {
+    margin-bottom: 1.5rem;
+    
+    i {
+      font-size: 4rem;
+      color: #f59e0b;
+      animation: pulse 2s infinite;
+    }
+  }
+  
+  h3 {
+    margin: 0 0 1rem 0;
+    color: var(--esprit-black);
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  
+  p {
+    margin: 0 0 1.5rem 0;
+    color: var(--esprit-text-secondary);
+    line-height: 1.6;
+  }
+  
+  .esprit-formation-info {
+    background: rgba(248, 250, 252, 0.8);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    
+    h4 {
+      margin: 0 0 1rem 0;
+      color: var(--esprit-black);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    .esprit-formation-details {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      
+      span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--esprit-text-secondary);
+        font-size: 0.9rem;
+        
+        i {
+          color: var(--esprit-red);
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+  
+  .esprit-warning-text {
+    color: #f59e0b;
+    font-weight: 500;
+    font-style: italic;
+    background: rgba(245, 158, 11, 0.1);
+    padding: 1rem;
+    border-radius: 12px;
+    border-left: 4px solid #f59e0b;
+  }
+}
+
+.esprit-cancel-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  padding: 1.5rem 2rem;
+  background: rgba(248, 250, 252, 0.5);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  
+  .esprit-btn-danger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

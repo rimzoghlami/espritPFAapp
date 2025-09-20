@@ -1,0 +1,389 @@
+<!-- Modern Esprit Formation Cards -->
+<div class="esprit-formations-container">
+    <!-- Enhanced Filter Section -->
+    <div class="esprit-filter-section">
+        <div class="esprit-filter-card">
+            <div class="esprit-filter-header">
+                <i class="pi pi-filter"></i>
+                <h3>Filter Formations</h3>
+            </div>
+            <div class="esprit-filter-content">
+                <label for="categoryFilter" class="esprit-filter-label">Category:</label>
+                <p-dropdown
+                    id="categoryFilter"
+                    [options]="categories"
+                    optionLabel="nom"
+                    optionValue="id"
+                    [(ngModel)]="selectedCategoryFilter"
+                    placeholder="All Categories"
+                    [showClear]="true"
+                    styleClass="esprit-dropdown"
+                    (onChange)="onCategoryChange()">
+                </p-dropdown>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Formation Cards Grid -->
+    <div class="esprit-cards-grid">
+        <ng-container *ngIf="!loading && formations.length > 0; else emptyState">
+            <div class="esprit-formation-card" *ngFor="let formation of formations; trackBy: trackByFormationId" (click)="showFormationDetails(formation)">
+                <!-- Card Header with Image -->
+                <div class="esprit-card-header">
+                    <div class="esprit-card-image" 
+                         [style.background-image]="formation.imageUrl ? 'url(' + formation.imageUrl + ')' : 'linear-gradient(135deg, var(--esprit-red) 0%, var(--esprit-red-dark) 100%)'">
+                        <div class="esprit-card-overlay">
+                            <div class="esprit-card-category">
+                                <i class="pi pi-tag"></i>
+                                {{ formation.categorie?.nom || 'General' }}
+                            </div>
+                            <div class="esprit-card-mode">
+                                <i class="pi" [class]="formation.enLigne ? 'pi-globe' : 'pi-home'"></i>
+                                {{ formation.enLigne ? 'Online' : 'In-Person' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Content -->
+                <div class="esprit-card-content">
+                    <div class="esprit-card-title">
+                        <h3>{{ formation.titre }}</h3>
+                        <div class="esprit-card-status" *ngIf="isReserved(formation.id)">
+                            <i class="pi pi-check-circle"></i>
+                            <span>Reserved</span>
+                        </div>
+                    </div>
+
+                    <div class="esprit-card-description">
+                        <p>{{ formation.description }}</p>
+                    </div>
+
+                    <!-- Detailed Information Section -->
+                    <div class="esprit-details-section">
+                        <div class="esprit-detail-row">
+                            <i class="pi pi-calendar"></i>
+                            <div class="esprit-detail-content">
+                                <span class="esprit-detail-label">Start</span>
+                                <span class="esprit-detail-value">{{ formation.dateDebut | date:'MMM d, yyyy - h:mm a' }}</span>
+                            </div>
+                        </div>
+
+                        <div class="esprit-detail-row" *ngIf="formation.dateFin">
+                            <i class="pi pi-calendar-times"></i>
+                            <div class="esprit-detail-content">
+                                <span class="esprit-detail-label">End</span>
+                                <span class="esprit-detail-value">{{ formation.dateFin | date:'MMM d, yyyy - h:mm a' }}</span>
+                            </div>
+                        </div>
+
+                        <div class="esprit-detail-row" *ngIf="!formation.enLigne && formation.lieu">
+                            <i class="pi pi-map-marker"></i>
+                            <div class="esprit-detail-content">
+                                <span class="esprit-detail-label">Location</span>
+                                <span class="esprit-detail-value">{{ formation.lieu }}</span>
+                            </div>
+                        </div>
+
+                        <div class="esprit-detail-row" *ngIf="formation.duree">
+                            <i class="pi pi-clock"></i>
+                            <div class="esprit-detail-content">
+                                <span class="esprit-detail-label">Duration</span>
+                                <span class="esprit-detail-value">{{ formation.duree }} hours</span>
+                            </div>
+                        </div>
+
+                        <div class="esprit-detail-row" *ngIf="formation.niveau">
+                            <i class="pi pi-star"></i>
+                            <div class="esprit-detail-content">
+                                <span class="esprit-detail-label">Level</span>
+                                <span class="esprit-detail-value">{{ formation.niveau }}</span>
+                            </div>
+                        </div>
+
+                        <div class="esprit-detail-row" *ngIf="formation.prix">
+                            <i class="pi pi-dollar"></i>
+                            <div class="esprit-detail-content">
+                                <span class="esprit-detail-label">Price</span>
+                                <span class="esprit-detail-value esprit-price-highlight">{{ formation.prix | currency:'TND':'symbol':'1.0-3':'fr-TN' }}</span>
+                            </div>
+                        </div>
+
+                        <div class="esprit-detail-row" *ngIf="formation.capacite">
+                            <i class="pi pi-users"></i>
+                            <div class="esprit-detail-content">
+                                <span class="esprit-detail-label">Capacity</span>
+                                <span class="esprit-detail-value">{{ formation.capacite }} participants</span>
+                            </div>
+                        </div>
+
+                        <div class="esprit-detail-row" *ngIf="formation.prerequis">
+                            <i class="pi pi-info-circle"></i>
+                            <div class="esprit-detail-content">
+                                <span class="esprit-detail-label">Prerequisites</span>
+                                <span class="esprit-detail-value">{{ formation.prerequis }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Actions -->
+                <div class="esprit-card-actions">
+                    <!-- Reserve Button -->
+                    <button 
+                        *ngIf="!isReserved(formation.id)" 
+                        pButton 
+                        type="button" 
+                        class="esprit-btn-reserve"
+                        [loading]="reservationLoading"
+                        (click)="reserve(formation); $event.stopPropagation()">
+                        <i class="pi pi-calendar-plus"></i>
+                        <span>Reserve Now</span>
+                    </button>
+                    
+                    <!-- Cancel Reservation Button -->
+                    <button 
+                        *ngIf="isReserved(formation.id)" 
+                        pButton 
+                        type="button" 
+                        class="esprit-btn-cancel"
+                        [loading]="cancelLoading"
+                        (click)="showCancelDialog(formation, $event)">
+                        <i class="pi pi-times-circle"></i>
+                        <span>Cancel Reservation</span>
+                    </button>
+                    
+                    <!-- View Details Button -->
+                    <button 
+                        pButton 
+                        type="button" 
+                        class="esprit-btn-details"
+                        (click)="showFormationDetails(formation); $event.stopPropagation()">
+                        <i class="pi pi-info-circle"></i>
+                        <span>View Details</span>
+                    </button>
+                </div>
+
+                <!-- Floating Elements for Futuristic Effect -->
+                <div class="esprit-card-floating">
+                    <div class="esprit-float-dot esprit-dot-1"></div>
+                    <div class="esprit-float-dot esprit-dot-2"></div>
+                </div>
+            </div>
+        </ng-container>
+        
+        <!-- Enhanced Empty State -->
+        <ng-template #emptyState>
+            <div class="esprit-empty-state">
+                <div class="esprit-empty-icon">
+                    <i class="pi pi-search"></i>
+                </div>
+                <h3 class="esprit-empty-title">No Formations Found</h3>
+                <p class="esprit-empty-text">Try adjusting your filters or check back later for new formations.</p>
+            </div>
+        </ng-template>
+    </div>
+</div>
+
+<!-- Formation Details Dialog -->
+<p-dialog 
+    [(visible)]="displayFormationDialog" 
+    [modal]="true" 
+    [closable]="true" 
+    [draggable]="false" 
+    [resizable]="false" 
+    styleClass="esprit-formation-dialog"
+    header="Formation Details"
+    [style]="{width: '90vw', maxWidth: '800px'}">
+    
+    <div class="esprit-dialog-content" *ngIf="selectedFormation">
+        <!-- Formation Header -->
+        <div class="esprit-dialog-header">
+            <div class="esprit-dialog-image" 
+                 [style.background-image]="selectedFormation.imageUrl ? 'url(' + selectedFormation.imageUrl + ')' : 'linear-gradient(135deg, var(--esprit-red) 0%, var(--esprit-red-dark) 100%)'">
+                <div class="esprit-dialog-overlay">
+                    <h2>{{ selectedFormation.titre }}</h2>
+                    <div class="esprit-dialog-badges">
+                        <span class="esprit-badge esprit-badge-category">
+                            <i class="pi pi-tag"></i>
+                            {{ selectedFormation.categorie?.nom || 'General' }}
+                        </span>
+                        <span class="esprit-badge esprit-badge-mode">
+                            <i class="pi" [class]="selectedFormation.enLigne ? 'pi-globe' : 'pi-home'"></i>
+                            {{ selectedFormation.enLigne ? 'Online' : 'In-Person' }}
+                        </span>
+                        <span class="esprit-badge esprit-badge-status" *ngIf="isReserved(selectedFormation.id)">
+                            <i class="pi pi-check-circle"></i>
+                            Reserved
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formation Content -->
+        <div class="esprit-dialog-body">
+            <!-- Description -->
+            <div class="esprit-section">
+                <h3><i class="pi pi-info-circle"></i> Description</h3>
+                <p>{{ selectedFormation.description }}</p>
+            </div>
+
+            <!-- Details Grid -->
+            <div class="esprit-details-grid">
+                <div class="esprit-detail-card">
+                    <i class="pi pi-calendar"></i>
+                    <div class="esprit-detail-info">
+                        <span class="esprit-detail-title">Start Date</span>
+                        <span class="esprit-detail-text">{{ selectedFormation.dateDebut | date:'MMM d, yyyy - h:mm a' }}</span>
+                    </div>
+                </div>
+
+                <div class="esprit-detail-card" *ngIf="selectedFormation.dateFin">
+                    <i class="pi pi-calendar-times"></i>
+                    <div class="esprit-detail-info">
+                        <span class="esprit-detail-title">End Date</span>
+                        <span class="esprit-detail-text">{{ selectedFormation.dateFin | date:'MMM d, yyyy - h:mm a' }}</span>
+                    </div>
+                </div>
+
+                <div class="esprit-detail-card" *ngIf="selectedFormation.duree">
+                    <i class="pi pi-clock"></i>
+                    <div class="esprit-detail-info">
+                        <span class="esprit-detail-title">Duration</span>
+                        <span class="esprit-detail-text">{{ selectedFormation.duree }} hours</span>
+                    </div>
+                </div>
+
+                <div class="esprit-detail-card" *ngIf="selectedFormation.niveau">
+                    <i class="pi pi-star"></i>
+                    <div class="esprit-detail-info">
+                        <span class="esprit-detail-title">Level</span>
+                        <span class="esprit-detail-text">{{ selectedFormation.niveau }}</span>
+                    </div>
+                </div>
+
+                <div class="esprit-detail-card" *ngIf="selectedFormation.prix">
+                    <i class="pi pi-dollar"></i>
+                    <div class="esprit-detail-info">
+                        <span class="esprit-detail-title">Price</span>
+                        <span class="esprit-detail-text esprit-price-highlight">{{ selectedFormation.prix | currency:'TND':'symbol':'1.0-3':'fr-TN' }}</span>
+                    </div>
+                </div>
+
+                <div class="esprit-detail-card" *ngIf="selectedFormation.capacite">
+                    <i class="pi pi-users"></i>
+                    <div class="esprit-detail-info">
+                        <span class="esprit-detail-title">Capacity</span>
+                        <span class="esprit-detail-text">{{ selectedFormation.capacite }} participants</span>
+                    </div>
+                </div>
+
+                <div class="esprit-detail-card" *ngIf="!selectedFormation.enLigne && selectedFormation.lieu">
+                    <i class="pi pi-map-marker"></i>
+                    <div class="esprit-detail-info">
+                        <span class="esprit-detail-title">Location</span>
+                        <span class="esprit-detail-text">{{ selectedFormation.lieu }}</span>
+                    </div>
+                </div>
+
+                <div class="esprit-detail-card" *ngIf="selectedFormation.enLigne && selectedFormation.meetLink">
+                    <i class="pi pi-link"></i>
+                    <div class="esprit-detail-info">
+                        <span class="esprit-detail-title">Meeting Link</span>
+                        <a [href]="selectedFormation.meetLink" target="_blank" class="esprit-link">Join Meeting</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prerequisites -->
+            <div class="esprit-section" *ngIf="selectedFormation.prerequis">
+                <h3><i class="pi pi-exclamation-triangle"></i> Prerequisites</h3>
+                <p>{{ selectedFormation.prerequis }}</p>
+            </div>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="esprit-dialog-footer">
+            <button 
+                pButton 
+                type="button" 
+                class="esprit-btn-secondary"
+                (click)="hideFormationDialog()">
+                <i class="pi pi-times"></i>
+                <span>Close</span>
+            </button>
+            <button 
+                *ngIf="selectedFormation && !isReserved(selectedFormation.id)" 
+                pButton 
+                type="button" 
+                class="esprit-btn-primary"
+                [loading]="reservationLoading"
+                (click)="reserveFromDialog()">
+                <i class="pi pi-calendar-plus"></i>
+                <span>Reserve Now</span>
+            </button>
+            <button 
+                *ngIf="selectedFormation && isReserved(selectedFormation.id)" 
+                pButton 
+                type="button" 
+                class="esprit-btn-warning"
+                [loading]="cancelLoading"
+                (click)="showCancelDialog(selectedFormation)">
+                <i class="pi pi-times-circle"></i>
+                <span>Cancel Reservation</span>
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Cancel Reservation Confirmation Dialog -->
+<p-dialog 
+    [(visible)]="displayCancelDialog" 
+    [modal]="true" 
+    [closable]="true" 
+    [draggable]="false" 
+    [resizable]="false" 
+    styleClass="esprit-cancel-dialog"
+    header="Cancel Reservation"
+    [style]="{width: '90vw', maxWidth: '500px'}">
+    
+    <div class="esprit-cancel-content" *ngIf="formationToCancel">
+        <div class="esprit-cancel-icon">
+            <i class="pi pi-exclamation-triangle"></i>
+        </div>
+        <h3>Are you sure you want to cancel your reservation?</h3>
+        <p>You are about to cancel your reservation for:</p>
+        <div class="esprit-formation-info">
+            <h4>{{ formationToCancel.titre }}</h4>
+            <div class="esprit-formation-details">
+                <span><i class="pi pi-calendar"></i> {{ formationToCancel.dateDebut | date:'MMM d, yyyy - h:mm a' }}</span>
+                <span *ngIf="formationToCancel.categorie"><i class="pi pi-tag"></i> {{ formationToCancel.categorie.nom }}</span>
+            </div>
+        </div>
+        <p class="esprit-warning-text">This action cannot be undone. You will need to reserve again if you change your mind.</p>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="esprit-cancel-footer">
+            <button 
+                pButton 
+                type="button" 
+                class="esprit-btn-secondary"
+                (click)="hideCancelDialog()">
+                <i class="pi pi-times"></i>
+                <span>Keep Reservation</span>
+            </button>
+            <button 
+                pButton 
+                type="button" 
+                class="esprit-btn-danger"
+                [loading]="cancelLoading"
+                (click)="cancelReservation()">
+                <i class="pi pi-trash"></i>
+                <span>Yes, Cancel Reservation</span>
+            </button>
+        </div>
+    </ng-template>
+</p-dialog>

@@ -1,0 +1,79 @@
+<div class="esprit-topbar">
+    <!-- Esprit Logo and Branding -->
+    <div class="esprit-topbar-brand">
+        <a class="esprit-brand-link" routerLink="">
+            <div class="esprit-logo-container">
+                <img src="assets/layout/images/espritLogo.png" alt="Esprit Logo" class="esprit-logo">
+                <div class="esprit-brand-text">
+                    <span class="esprit-brand-name">ESPRIT</span>
+                    <span class="esprit-brand-subtitle">Educational Platform</span>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <button #menubutton class="esprit-menu-toggle" (click)="layoutService.onMenuToggle()">
+        <i class="pi pi-bars"></i>
+    </button>
+
+    <!-- Admin Actions -->
+    <div class="esprit-topbar-actions">
+        <!-- Quick Stats -->
+        <div class="esprit-quick-stats">
+            <div class="esprit-stat-item">
+                <i class="pi pi-users"></i>
+                <span class="esprit-stat-label">Admin Panel</span>
+            </div>
+        </div>
+
+        <!-- Profile Menu -->
+        <div class="esprit-profile-menu">
+            <button class="esprit-profile-button" (click)="toggleAdminMenu()">
+                <div class="esprit-profile-avatar">
+                    {{ initials }}
+                </div>
+                <div class="esprit-profile-info">
+                    <span class="esprit-profile-name">{{ name }}</span>
+                    <span class="esprit-profile-role">Administrator</span>
+                </div>
+                <i class="pi pi-angle-down esprit-dropdown-icon"></i>
+            </button>
+
+            <div class="esprit-topbar-dropdown" [ngClass]="{'esprit-dropdown-active': adminMenuActive}">
+                <div class="esprit-dropdown-content">
+                    <div class="esprit-admin-list">
+                        <div class="esprit-admin-header">Administrators</div>
+                        
+                        <button class="esprit-dropdown-item" *ngFor="let admin of administrators">
+                            <i class="pi pi-user"></i>
+                            <span>{{ admin.name }}</span>
+                        </button>
+                        
+                        <div class="esprit-dropdown-divider"></div>
+                        
+                        <button class="esprit-dropdown-item esprit-logout-item" (click)="logout()">
+                            <i class="pi pi-sign-out"></i>
+                            <span>Logout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dropdown Menu -->
+    <div #topbarmenu class="esprit-topbar-dropdown" [ngClass]="{'esprit-dropdown-active': layoutService.state.profileSidebarVisible}">
+        <div class="esprit-dropdown-content">
+            <button class="esprit-dropdown-item">
+                <i class="pi pi-user"></i>
+                <span>My Profile</span>
+            </button>
+            <button class="esprit-dropdown-item">
+                <i class="pi pi-cog"></i>
+                <span>Settings</span>
+            </button>
+            <div class="esprit-dropdown-divider"></div>
+        </div>
+    </div>
+</div>

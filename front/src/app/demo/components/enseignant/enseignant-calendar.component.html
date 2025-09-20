@@ -1,0 +1,179 @@
+<!-- Modern Esprit Calendar View -->
+<div class="esprit-calendar-container">
+  <!-- Calendar Header -->
+  <div class="esprit-calendar-header">
+    <div class="esprit-header-content">
+      <div class="esprit-header-title">
+        <i class="pi pi-calendar"></i>
+        <h2>My Formation Calendar</h2>
+      </div>
+      <div class="esprit-header-stats">
+        <div class="esprit-stat-card">
+          <i class="pi pi-check-circle"></i>
+          <div class="esprit-stat-content">
+            <span class="esprit-stat-number">{{ (reservations | filter:'statut':'CONFIRME').length }}</span>
+            <span class="esprit-stat-label">Confirmed</span>
+          </div>
+        </div>
+        <div class="esprit-stat-card">
+          <i class="pi pi-clock"></i>
+          <div class="esprit-stat-content">
+            <span class="esprit-stat-number">{{ (reservations | filter:'statut':'EN_ATTENTE').length }}</span>
+            <span class="esprit-stat-label">Pending</span>
+          </div>
+        </div>
+        <div class="esprit-stat-card">
+          <i class="pi pi-times-circle"></i>
+          <div class="esprit-stat-content">
+            <span class="esprit-stat-number">{{ (reservations | filter:'statut':'ANNULE').length }}</span>
+            <span class="esprit-stat-label">Cancelled</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Legend -->
+  <div class="esprit-calendar-legend">
+    <div class="esprit-legend-item">
+      <div class="esprit-legend-color esprit-color-confirmed"></div>
+      <span>Confirmed Formations</span>
+    </div>
+    <div class="esprit-legend-item">
+      <div class="esprit-legend-color esprit-color-pending"></div>
+      <span>Pending Approval</span>
+    </div>
+    <div class="esprit-legend-item">
+      <div class="esprit-legend-color esprit-color-cancelled"></div>
+      <span>Cancelled</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="esprit-loading" *ngIf="loading">
+    <i class="pi pi-spin pi-spinner"></i>
+    <span>Loading your calendar...</span>
+  </div>
+
+  <!-- Calendar Component -->
+  <div class="esprit-calendar-wrapper" *ngIf="!loading">
+    <full-calendar [options]="calendarOptions"></full-calendar>
+  </div>
+
+  <!-- Empty State -->
+  <div class="esprit-empty-calendar" *ngIf="!loading && events.length === 0">
+    <div class="esprit-empty-icon">
+      <i class="pi pi-calendar-times"></i>
+    </div>
+    <h3>No Reservations Yet</h3>
+    <p>You haven't made any formation reservations yet. Browse available formations to get started!</p>
+    <button 
+      pButton 
+      type="button" 
+      label="Browse Formations" 
+      icon="pi pi-search"
+      class="esprit-btn-primary"
+      routerLink="/enseignant/formations">
+    </button>
+  </div>
+</div>
+
+<!-- Event Details Dialog -->
+<p-dialog 
+  [(visible)]="showEventDialog" 
+  [modal]="true" 
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="esprit-event-dialog"
+  header="Formation Details"
+  (onHide)="closeEventDialog()">
+  
+  <div class="esprit-event-details" *ngIf="selectedEvent">
+    <!-- Formation Image -->
+    <div class="esprit-event-image" *ngIf="selectedEvent.extendedProps.formation.imageUrl">
+      <img [src]="selectedEvent.extendedProps.formation.imageUrl" 
+           [alt]="selectedEvent.extendedProps.formation.titre"
+           class="esprit-formation-image">
+    </div>
+
+    <!-- Formation Info -->
+    <div class="esprit-event-info">
+      <div class="esprit-event-header">
+        <h3 class="esprit-event-title">{{ selectedEvent.extendedProps.formation.titre }}</h3>
+        <p-tag 
+          [value]="getStatusLabel(selectedEvent.extendedProps.status)" 
+          [severity]="getStatusSeverity(selectedEvent.extendedProps.status)"
+          class="esprit-status-tag">
+        </p-tag>
+      </div>
+
+      <div class="esprit-event-description">
+        <p>{{ selectedEvent.extendedProps.formation.description }}</p>
+      </div>
+
+      <div class="esprit-event-details-grid">
+        <div class="esprit-detail-row">
+          <i class="pi pi-tag"></i>
+          <div class="esprit-detail-content">
+            <span class="esprit-detail-label">Category</span>
+            <span class="esprit-detail-value">{{ selectedEvent.extendedProps.formation.categorie?.nom || 'General' }}</span>
+          </div>
+        </div>
+
+        <div class="esprit-detail-row">
+          <i class="pi pi-calendar"></i>
+          <div class="esprit-detail-content">
+            <span class="esprit-detail-label">Start Date</span>
+            <span class="esprit-detail-value">{{ formatDate(selectedEvent.start) }}</span>
+          </div>
+        </div>
+
+        <div class="esprit-detail-row" *ngIf="selectedEvent.end">
+          <i class="pi pi-calendar-times"></i>
+          <div class="esprit-detail-content">
+            <span class="esprit-detail-label">End Date</span>
+            <span class="esprit-detail-value">{{ formatDate(selectedEvent.end) }}</span>
+          </div>
+        </div>
+
+        <div class="esprit-detail-row">
+          <i class="pi" [class]="selectedEvent.extendedProps.formation.enLigne ? 'pi-globe' : 'pi-home'"></i>
+          <div class="esprit-detail-content">
+            <span class="esprit-detail-label">Mode</span>
+            <span class="esprit-detail-value">{{ selectedEvent.extendedProps.formation.enLigne ? 'Online' : 'In-Person' }}</span>
+          </div>
+        </div>
+
+        <div class="esprit-detail-row" *ngIf="!selectedEvent.extendedProps.formation.enLigne && selectedEvent.extendedProps.formation.lieu">
+          <i class="pi pi-map-marker"></i>
+          <div class="esprit-detail-content">
+            <span class="esprit-detail-label">Location</span>
+            <span class="esprit-detail-value">{{ selectedEvent.extendedProps.formation.lieu }}</span>
+          </div>
+        </div>
+
+        <div class="esprit-detail-row">
+          <i class="pi pi-clock"></i>
+          <div class="esprit-detail-content">
+            <span class="esprit-detail-label">Reservation Date</span>
+            <span class="esprit-detail-value">{{ formatDate(selectedEvent.extendedProps.reservation.dateReservation) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="esprit-dialog-footer">
+      <button 
+        pButton 
+        type="button" 
+        label="Close" 
+        icon="pi pi-times"
+        class="esprit-btn-secondary"
+        (click)="closeEventDialog()">
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>

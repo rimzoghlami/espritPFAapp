@@ -1,0 +1,777 @@
+<!-- Modern Esprit Admin Header -->
+<div class="esprit-admin-container">
+  <div class="esprit-admin-header">
+    <div class="esprit-header-content">
+      <div class="esprit-header-left">
+        <div class="esprit-header-icon">
+          <i class="pi pi-graduation-cap"></i>
+        </div>
+        <div class="esprit-header-text">
+          <h1 class="esprit-title">Formation Management</h1>
+          <p class="esprit-subtitle">Manage and organize educational formations</p>
+        </div>
+      </div>
+      <div class="esprit-header-actions">
+        <button 
+          pButton 
+          type="button"
+          label="Add Formation" 
+          icon="pi pi-plus" 
+          class="esprit-btn-primary"
+          (click)="showAddDialog()">
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Dashboard -->
+  <div class="esprit-stats-grid">
+    <div class="esprit-stat-card">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-book"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ formations.length }}</div>
+        <div class="esprit-stat-label">Total Formations</div>
+      </div>
+    </div>
+    <div class="esprit-stat-card">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-tags"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ categoryOptions.length }}</div>
+        <div class="esprit-stat-label">Categories</div>
+      </div>
+    </div>
+    <div class="esprit-stat-card">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-calendar"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ getActiveFormationsCount() }}</div>
+        <div class="esprit-stat-label">Active Formations</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="esprit-filters-section">
+    <div class="esprit-filter-card">
+      <div class="esprit-filter-header">
+        <i class="pi pi-filter"></i>
+        <span>Filter & Search</span>
+      </div>
+      <div class="esprit-filter-content">
+        <div class="esprit-filter-group">
+          <label for="categoryFilter" class="esprit-filter-label">Category:</label>
+          <p-dropdown 
+            id="categoryFilter"
+            [options]="categoryOptions" 
+            [(ngModel)]="selectedCategoryFilter" 
+            placeholder="All Categories"
+            optionLabel="nom"
+            optionValue="id"
+            [showClear]="true"
+            (onChange)="filterByCategory()"
+            styleClass="esprit-dropdown">
+          </p-dropdown>
+        </div>
+      </div>
+    </div>
+  </div>
+            
+  <!-- Formations Table -->
+  <div class="esprit-table-section">
+    <div class="esprit-table-header">
+      <h2 class="esprit-section-title">
+        <i class="pi pi-list"></i>
+        Formations List
+      </h2>
+    </div>
+    
+    <div class="esprit-table-container">
+      <p-table 
+        [value]="formations" 
+        [loading]="loading"
+        [paginator]="true" 
+        [rows]="10"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[10, 25, 50]"
+        styleClass="esprit-table">
+        
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="esprit-th-image">Image</th>
+            <th class="esprit-th-title">Title</th>
+            <th class="esprit-th-description">Description</th>
+            <th class="esprit-th-mode">Mode</th>
+            <th class="esprit-th-date">Start Date</th>
+            <th class="esprit-th-category">Category</th>
+            <th class="esprit-th-price">Price</th>
+            <th class="esprit-th-instructor">Instructor</th>
+            <th class="esprit-th-actions">Actions</th>
+          </tr>
+        </ng-template>
+                
+        <ng-template pTemplate="body" let-formation>
+          <tr class="esprit-table-row">
+            <td class="esprit-td-image">
+              <div class="esprit-formation-image">
+                <img 
+                  [src]="formation.imageUrl || 'assets/demo/images/placeholder.png'" 
+                  [alt]="formation.titre"
+                  class="esprit-img">
+              </div>
+            </td>
+            <td class="esprit-td-title">
+              <div class="esprit-formation-title">{{ formation.titre }}</div>
+              <div class="esprit-formation-subtitle" *ngIf="formation.titrePause">
+                Break: {{ formation.titrePause }}
+              </div>
+            </td>
+            <td class="esprit-td-description">
+              <div class="esprit-formation-description">
+                {{ formation.description | slice:0:100 }}{{ formation.description?.length > 100 ? '...' : '' }}
+              </div>
+            </td>
+            <td class="esprit-td-mode">
+              <p-tag 
+                [value]="getFormationModeText(formation.enLigne)" 
+                [severity]="formation.enLigne ? 'info' : 'success'"
+                styleClass="esprit-tag">
+              </p-tag>
+              <div class="esprit-location-info" *ngIf="!formation.enLigne && formation.lieu">
+                <small><i class="pi pi-map-marker"></i> {{ formation.lieu }}</small>
+              </div>
+              <div class="esprit-location-info" *ngIf="formation.enLigne && formation.meetLink">
+                <small><i class="pi pi-video"></i> Online Meeting</small>
+              </div>
+            </td>
+            <td class="esprit-td-date">
+              <div class="esprit-date">{{ formatDate(formation.dateDebut) }}</div>
+              <div class="esprit-date-end">
+                <small>End: {{ formatDate(formation.dateFin) }}</small>
+              </div>
+              <div class="esprit-duration" *ngIf="formation.dureePauseMinutes > 0">
+                <small><i class="pi pi-clock"></i> Break: {{ formation.dureePauseMinutes }}min</small>
+              </div>
+            </td>
+            <td class="esprit-td-category">
+              <div class="esprit-category">{{ formation.categorie?.nom || 'N/A' }}</div>
+            </td>
+            <td class="esprit-td-price">
+              <div class="esprit-price">
+                <span class="esprit-price-amount" *ngIf="formation.prix; else noPriceTemplate">
+                  {{ formation.prix | currency:'TND':'symbol':'1.0-3':'fr-TN' }}
+                </span>
+                <ng-template #noPriceTemplate>
+                  <span class="esprit-price-na">N/A</span>
+                </ng-template>
+              </div>
+            </td>
+            <td class="esprit-td-instructor">
+              <div class="esprit-instructor">
+                <i class="pi pi-user"></i> 
+                {{ formation.formateurId || 'Not Assigned' }}
+              </div>
+            </td>
+            <td class="esprit-td-actions">
+              <div class="esprit-action-buttons">
+                <button 
+                  pButton
+                  type="button"
+                  icon="pi pi-users" 
+                  class="esprit-btn-info"
+                  (click)="showReservations(formation)"
+                  pTooltip="View Reservations">
+                </button>
+                <button 
+                  pButton
+                  type="button"
+                  icon="pi pi-pencil" 
+                  class="esprit-btn-edit"
+                  (click)="editFormation(formation)"
+                  pTooltip="Edit Formation">
+                </button>
+                <button 
+                  pButton
+                  type="button"
+                  icon="pi pi-trash" 
+                  class="esprit-btn-danger"
+                  (click)="deleteFormation(formation.id)"
+                  pTooltip="Delete Formation">
+                </button>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="esprit-empty-message">No formations found</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<!-- Enhanced Create/Edit Formation Dialog -->
+<p-dialog 
+    [(visible)]="displayDialog" 
+    [modal]="true" 
+    [closable]="true"
+    [style]="{width: '95vw', maxWidth: '1400px', maxHeight: '95vh'}"
+    styleClass="esprit-dialog esprit-formation-dialog">
+    
+    <!-- Custom Dialog Header -->
+    <ng-template pTemplate="header">
+        <div class="esprit-dialog-header">
+            <div class="esprit-dialog-icon">
+                <i class="pi pi-graduation-cap"></i>
+            </div>
+            <div class="esprit-dialog-title">
+                <h2>{{ isEditing ? 'Edit Formation' : 'Create New Formation' }}</h2>
+                <p>{{ isEditing ? 'Update formation details and configuration' : 'Design and configure a new educational formation' }}</p>
+            </div>
+        </div>
+    </ng-template>
+    
+    <!-- Enhanced Dialog Content -->
+    <div class="esprit-dialog-content esprit-formation-content">
+        <!-- Basic Information Section -->
+        <div class="esprit-form-section">
+            <div class="esprit-section-header">
+                <i class="pi pi-info-circle"></i>
+                <span class="esprit-section-title">Basic Information</span>
+                <div class="esprit-section-line"></div>
+            </div>
+            
+            <div class="esprit-form-grid esprit-form-grid-basic">
+                <div class="esprit-form-group">
+                    <label for="formationTitre" class="esprit-label">
+                        <i class="pi pi-bookmark"></i>
+                        Formation Title *
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="formationTitre"
+                            type="text" 
+                            pInputText 
+                            [(ngModel)]="newFormation.titre" 
+                            placeholder="Enter an engaging formation title"
+                            class="esprit-input"
+                            [class.esprit-input-error]="!newFormation.titre && formSubmitted"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-bookmark"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="!newFormation.titre && formSubmitted">
+                        Formation title is required
+                    </small>
+                </div>
+                
+                <!-- Price Field -->
+                <div class="esprit-form-group">
+                    <label for="formationPrice" class="esprit-label">
+                        <i class="pi pi-dollar"></i>
+                        <span>Price *</span>
+                    </label>
+                    <div class="esprit-number-wrapper">
+                        <p-inputNumber 
+                            id="formationPrice"
+                            [(ngModel)]="newFormation.price" 
+                            mode="currency" 
+                            currency="TND" 
+                            locale="fr-TN"
+                            placeholder="Enter formation price in TND"
+                            styleClass="esprit-number"
+                            [class.esprit-input-error]="!newFormation.price && formSubmitted"
+                            [min]="0"
+                            [maxFractionDigits]="3">
+                        </p-inputNumber>
+                        <div class="esprit-number-icon">
+                            <i class="pi pi-dollar"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="!newFormation.price && formSubmitted">
+                        Formation price is required
+                    </small>
+                    <small class="esprit-field-help" *ngIf="!(!newFormation.price && formSubmitted)">
+                        Enter the price for this formation in Tunisian Dinar (TND)
+                    </small>
+                </div>
+                
+                <div class="esprit-form-group esprit-form-group-full">
+                    <label for="formationDescription" class="esprit-label">
+                        <i class="pi pi-align-left"></i>
+                        Description *
+                    </label>
+                    <div class="esprit-textarea-wrapper">
+                        <textarea 
+                            id="formationDescription"
+                            pInputTextarea 
+                            [(ngModel)]="newFormation.description" 
+                            placeholder="Provide a detailed description of the formation content, objectives, and target audience"
+                            rows="4"
+                            class="esprit-textarea"
+                            [class.esprit-input-error]="!newFormation.description && formSubmitted">
+                        </textarea>
+                        <div class="esprit-textarea-icon">
+                            <i class="pi pi-align-left"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="!newFormation.description && formSubmitted">
+                        Formation description is required
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Schedule Information Section -->
+        <div class="esprit-form-section">
+            <div class="esprit-section-header">
+                <i class="pi pi-calendar"></i>
+                <span class="esprit-section-title">Schedule Information</span>
+                <div class="esprit-section-line"></div>
+            </div>
+            
+            <div class="esprit-form-grid esprit-form-grid-schedule">
+                <div class="esprit-form-group">
+                    <label for="dateDebut" class="esprit-label">
+                        <i class="pi pi-calendar-plus"></i>
+                        Start Date & Time *
+                    </label>
+                    <div class="esprit-calendar-wrapper">
+                        <p-calendar 
+                            id="dateDebut"
+                            [(ngModel)]="newFormation.dateDebut" 
+                            [showTime]="true" 
+                            dateFormat="dd/mm/yy" 
+                            timeFormat="24"
+                            placeholder="Select start date and time"
+                            styleClass="esprit-calendar"
+                            [class.esprit-input-error]="!newFormation.dateDebut && formSubmitted">
+                        </p-calendar>
+                        <div class="esprit-calendar-icon">
+                            <i class="pi pi-calendar-plus"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="!newFormation.dateDebut && formSubmitted">
+                        Start date and time is required
+                    </small>
+                </div>
+                
+                <div class="esprit-form-group">
+                    <label for="dateFin" class="esprit-label">
+                        <i class="pi pi-calendar-minus"></i>
+                        End Date & Time *
+                    </label>
+                    <div class="esprit-calendar-wrapper">
+                        <p-calendar 
+                            id="dateFin"
+                            [(ngModel)]="newFormation.dateFin" 
+                            [showTime]="true" 
+                            dateFormat="dd/mm/yy" 
+                            timeFormat="24"
+                            placeholder="Select end date and time"
+                            styleClass="esprit-calendar"
+                            [class.esprit-input-error]="!newFormation.dateFin && formSubmitted">
+                        </p-calendar>
+                        <div class="esprit-calendar-icon">
+                            <i class="pi pi-calendar-minus"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="!newFormation.dateFin && formSubmitted">
+                        End date and time is required
+                    </small>
+                </div>
+
+                <div class="esprit-form-group">
+                    <label for="datePublication" class="esprit-label">
+                        <i class="pi pi-send"></i>
+                        Publication Date
+                    </label>
+                    <div class="esprit-calendar-wrapper">
+                        <p-calendar 
+                            id="datePublication"
+                            [(ngModel)]="newFormation.datePublication" 
+                            [showTime]="true" 
+                            dateFormat="dd/mm/yy" 
+                            timeFormat="24"
+                            placeholder="Select publication date (defaults to now)"
+                            styleClass="esprit-calendar">
+                        </p-calendar>
+                        <div class="esprit-calendar-icon">
+                            <i class="pi pi-send"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-help">
+                        When this formation will be published (defaults to current date/time)
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mode & Location Section -->
+        <div class="esprit-form-section">
+            <div class="esprit-section-header">
+                <i class="pi pi-map-marker"></i>
+                <span class="esprit-section-title">Mode & Location</span>
+                <div class="esprit-section-line"></div>
+            </div>
+            
+            <div class="esprit-form-grid esprit-form-grid-location">
+                <!-- Formation Mode -->
+                <div class="esprit-form-group esprit-form-group-radio">
+                    <label class="esprit-label">
+                        <i class="pi pi-desktop"></i>
+                        Formation Mode *
+                    </label>
+                    <div class="esprit-radio-group">
+                        <div class="esprit-radio-option">
+                            <p-radioButton 
+                                inputId="modeInPerson" 
+                                name="formationMode" 
+                                [value]="false" 
+                                [(ngModel)]="newFormation.enLigne">
+                            </p-radioButton>
+                            <label for="modeInPerson" class="esprit-radio-label">
+                                <i class="pi pi-building"></i>
+                                In-Person
+                            </label>
+                        </div>
+                        <div class="esprit-radio-option">
+                            <p-radioButton 
+                                inputId="modeOnline" 
+                                name="formationMode" 
+                                [value]="true" 
+                                [(ngModel)]="newFormation.enLigne">
+                            </p-radioButton>
+                            <label for="modeOnline" class="esprit-radio-label">
+                                <i class="pi pi-video"></i>
+                                Online
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Location for In-Person -->
+                <div class="esprit-form-group" *ngIf="!newFormation.enLigne">
+                    <label for="formationLieu" class="esprit-label">
+                        <i class="pi pi-building"></i>
+                        <span>Location *</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="formationLieu"
+                            type="text" 
+                            pInputText 
+                            [(ngModel)]="newFormation.lieu" 
+                            placeholder="Enter the physical location (address, room, building)"
+                            class="esprit-input"
+                            [class.esprit-input-error]="!newFormation.enLigne && !newFormation.lieu && formSubmitted"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-map-marker"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="!newFormation.enLigne && !newFormation.lieu && formSubmitted">
+                        Location is required for in-person formations
+                    </small>
+                </div>
+
+                <!-- Meeting Link for Online -->
+                <div class="esprit-form-group" *ngIf="newFormation.enLigne">
+                    <label for="formationMeetLink" class="esprit-label">
+                        <i class="pi pi-video"></i>
+                        <span>Meeting Link *</span>
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="formationMeetLink"
+                            type="url" 
+                            pInputText 
+                            [(ngModel)]="newFormation.meetLink" 
+                            placeholder="Enter the online meeting link (Zoom, Teams, etc.)"
+                            class="esprit-input"
+                            [class.esprit-input-error]="newFormation.enLigne && !newFormation.meetLink && formSubmitted"/>
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-video"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="newFormation.enLigne && !newFormation.meetLink && formSubmitted">
+                        Meeting link is required for online formations
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Information Section -->
+        <div class="esprit-form-section">
+            <div class="esprit-section-header">
+                <i class="pi pi-cog"></i>
+                <span class="esprit-section-title">Additional Information</span>
+                <div class="esprit-section-line"></div>
+            </div>
+            
+            <div class="esprit-form-grid esprit-form-grid-additional">
+                <!-- Category Selection -->
+                <div class="esprit-form-group">
+                    <label for="formationCategory" class="esprit-label">
+                        <i class="pi pi-tags"></i>
+                        <span>Category *</span>
+                    </label>
+                    <div class="esprit-dropdown-wrapper">
+                        <p-dropdown 
+                            id="formationCategory"
+                            [options]="categories" 
+                            [(ngModel)]="newFormation.categorie" 
+                            optionLabel="label" 
+                            optionValue="value"
+                            placeholder="Select a category"
+                            styleClass="esprit-dropdown"
+                            [class.esprit-dropdown-error]="!newFormation.categorie && formSubmitted">
+                        </p-dropdown>
+                        <div class="esprit-dropdown-icon">
+                            <i class="pi pi-tags"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-error" *ngIf="!newFormation.categorie && formSubmitted">
+                        Category is required
+                    </small>
+                    <small class="esprit-field-help" *ngIf="!(!newFormation.categorie && formSubmitted)">
+                        Choose the most appropriate category for this formation
+                    </small>
+                </div>
+
+                <div class="esprit-form-group">
+                    <label for="formateurId" class="esprit-label">
+                        <i class="pi pi-user-edit"></i>
+                        Instructor ID
+                    </label>
+                    <div class="esprit-number-wrapper">
+                        <p-inputNumber 
+                            id="formateurId"
+                            [(ngModel)]="newFormation.formateurId" 
+                            placeholder="Enter instructor ID"
+                            styleClass="esprit-number">
+                        </p-inputNumber>
+                        <div class="esprit-number-icon">
+                            <i class="pi pi-user-edit"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-help">
+                        Assign a qualified instructor to this formation
+                    </small>
+                </div>
+
+                <div class="esprit-form-group">
+                    <label for="evenementId" class="esprit-label">
+                        <i class="pi pi-calendar-times"></i>
+                        Event ID
+                    </label>
+                    <div class="esprit-number-wrapper">
+                        <p-inputNumber 
+                            id="evenementId"
+                            [(ngModel)]="newFormation.evenementId" 
+                            placeholder="Enter event ID (optional)"
+                            styleClass="esprit-number">
+                        </p-inputNumber>
+                        <div class="esprit-number-icon">
+                            <i class="pi pi-calendar-times"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-help">
+                        Link this formation to a specific event (future use)
+                    </small>
+                </div>
+                
+                <div class="esprit-form-group">
+                    <label for="dureePause" class="esprit-label">
+                        <i class="pi pi-clock"></i>
+                        Break Duration (minutes)
+                    </label>
+                    <div class="esprit-number-wrapper">
+                        <p-inputNumber 
+                            id="dureePause"
+                            [(ngModel)]="newFormation.dureePauseMinutes" 
+                            placeholder="0"
+                            [min]="0"
+                            [max]="120"
+                            styleClass="esprit-number">
+                        </p-inputNumber>
+                        <div class="esprit-number-icon">
+                            <i class="pi pi-clock"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-help">
+                        Duration of break time during the formation
+                    </small>
+                </div>
+                
+                <div class="esprit-form-group esprit-form-group-full">
+                    <label for="titrePause" class="esprit-label">
+                        <i class="pi pi-pause"></i>
+                        Break Title
+                    </label>
+                    <div class="esprit-input-wrapper">
+                        <input 
+                            id="titrePause"
+                            type="text" 
+                            pInputText 
+                            [(ngModel)]="newFormation.titrePause" 
+                            placeholder="Enter break title (e.g., Coffee Break, Lunch Break)"
+                            class="esprit-input" />
+                        <div class="esprit-input-icon">
+                            <i class="pi pi-pause"></i>
+                        </div>
+                    </div>
+                    <small class="esprit-field-help">
+                        Optional title for the break period
+                    </small>
+                </div>
+                
+                <div class="esprit-form-group esprit-form-group-full">
+                    <label for="formationImage" class="esprit-label">
+                        <i class="pi pi-image"></i>
+                        Formation Image {{ !isEditing ? '*' : '' }}
+                    </label>
+                    <div class="esprit-upload-wrapper">
+                        <p-fileUpload 
+                            #fileUpload
+                            mode="basic" 
+                            name="image"
+                            accept="image/*" 
+                            [maxFileSize]="5000000"
+                            (onSelect)="onFileSelect($event)"
+                            chooseLabel="Choose Image"
+                            styleClass="esprit-upload">
+                        </p-fileUpload>
+                        <div class="esprit-upload-icon">
+                            <i class="pi pi-image"></i>
+                        </div>
+                    </div>
+                    <div class="esprit-current-image" *ngIf="isEditing && newFormation.imageUrl">
+                        <small class="esprit-field-help">Current image:</small>
+                        <img [src]="newFormation.imageUrl" alt="Current formation image" class="esprit-preview-image">
+                    </div>
+                    <small class="esprit-field-help">
+                        Upload an engaging image that represents this formation (max 5MB)
+                        {{ isEditing ? ' - Leave empty to keep current image' : '' }}
+                    </small>
+                    <small class="esprit-field-error" *ngIf="!isEditing && !newFormation.image && formSubmitted">
+                        Formation image is required
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Enhanced Dialog Footer -->
+    <ng-template pTemplate="footer">
+        <div class="esprit-dialog-footer">
+            <p-button 
+                label="Cancel" 
+                icon="pi pi-times" 
+                styleClass="esprit-button-secondary" 
+                (click)="hideDialog()">
+            </p-button>
+            <p-button 
+                [label]="isEditing ? 'Update Formation' : 'Create Formation'" 
+                [icon]="isEditing ? 'pi pi-check' : 'pi pi-plus'" 
+                styleClass="esprit-button-primary" 
+                (click)="addFormation()">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Reservations Dialog -->
+<p-dialog 
+    header="Reservations for: {{ selectedFormationTitle }}" 
+    [(visible)]="displayReservationsDialog" 
+    [modal]="true" 
+    [style]="{width: '80vw'}" 
+    [draggable]="false" 
+    [resizable]="false">
+    
+    <div class="p-fluid">
+        <p-table 
+            [value]="selectedFormationReservations" 
+            [paginator]="true" 
+            [rows]="10" 
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} reservations"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            styleClass="p-datatable-gridlines">
+            
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Participant Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Reservation Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-reservation>
+                <tr>
+                    <td>{{ reservation.participantName || 'N/A' }}</td>
+                    <td>{{ reservation.participantEmail || 'N/A' }}</td>
+                    <td>{{ reservation.participantPhone || 'N/A' }}</td>
+                    <td>{{ reservation.dateReservation | date:'short' }}</td>
+                    <td>
+                        <p-tag 
+                            [value]="reservation.statut" 
+                            [severity]="getStatusSeverity(reservation.statut)">
+                        </p-tag>
+                    </td>
+                    <td>
+                        <p-button 
+                            *ngIf="reservation.statut === 'EN_ATTENTE'" 
+                            label="Accept" 
+                            icon="pi pi-check" 
+                            severity="success" 
+                            size="small"
+                            styleClass="p-button-outlined mr-2"
+                            (click)="acceptReservation(reservation.id!)">
+                        </p-button>
+                        <p-button 
+                            *ngIf="reservation.statut !== 'ANNULE'" 
+                            label="Cancel" 
+                            icon="pi pi-times" 
+                            severity="danger" 
+                            size="small"
+                            styleClass="p-button-outlined"
+                            (click)="cancelReservation(reservation.id!)">
+                        </p-button>
+                    </td>
+                </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td colspan="6" class="text-center">
+                        <i class="pi pi-info-circle mr-2"></i>
+                        No reservations found for this formation
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </div>
+    
+    <ng-template pTemplate="footer">
+        <p-button 
+            label="Close" 
+            icon="pi pi-times" 
+            (click)="hideReservationsDialog()" 
+            styleClass="p-button-text">
+        </p-button>
+    </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>

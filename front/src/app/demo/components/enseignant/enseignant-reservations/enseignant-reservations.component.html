@@ -1,0 +1,330 @@
+<!-- Enseignant My Reservations Panel -->
+<div class="esprit-enseignant-reservations-container">
+  <!-- Header Section -->
+  <div class="esprit-enseignant-header">
+    <div class="esprit-header-content">
+      <div class="esprit-header-title">
+        <i class="pi pi-calendar-plus"></i>
+        <h2>My Reservations</h2>
+        <p>View and manage your formation reservations</p>
+      </div>
+      <div class="esprit-header-actions">
+        <button class="esprit-refresh-btn" (click)="loadMyReservations()">
+          <i class="pi pi-refresh"></i>
+          <span>Refresh</span>
+        </button>
+        <button class="esprit-new-reservation-btn" (click)="navigateToFormations()">
+          <i class="pi pi-plus"></i>
+          <span>New Reservation</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Dashboard -->
+  <div class="esprit-stats-dashboard">
+    <div class="esprit-stat-card esprit-total">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-list"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <span class="esprit-stat-number">{{ totalReservations }}</span>
+        <span class="esprit-stat-label">Total Reservations</span>
+      </div>
+    </div>
+    <div class="esprit-stat-card esprit-confirmed">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-check-circle"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <span class="esprit-stat-number">{{ confirmedReservations }}</span>
+        <span class="esprit-stat-label">Confirmed</span>
+      </div>
+    </div>
+    <div class="esprit-stat-card esprit-pending">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-clock"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <span class="esprit-stat-number">{{ pendingReservations }}</span>
+        <span class="esprit-stat-label">Pending</span>
+      </div>
+    </div>
+    <div class="esprit-stat-card esprit-cancelled">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-times-circle"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <span class="esprit-stat-number">{{ cancelledReservations }}</span>
+        <span class="esprit-stat-label">Cancelled</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="esprit-filters-section">
+    <div class="esprit-filters-grid">
+      <div class="esprit-filter-group">
+        <label>Status</label>
+        <p-dropdown 
+          [options]="statusOptions" 
+          [(ngModel)]="selectedStatusFilter"
+          optionLabel="label" 
+          optionValue="value"
+          placeholder="All Status"
+          (onChange)="onStatusFilterChange()"
+          styleClass="esprit-dropdown">
+        </p-dropdown>
+      </div>
+      
+      <div class="esprit-filter-group">
+        <label>Formation</label>
+        <p-dropdown 
+          [options]="formationOptions" 
+          [(ngModel)]="selectedFormationFilter"
+          optionLabel="label" 
+          optionValue="value"
+          placeholder="All Formations"
+          (onChange)="applyFilters()"
+          styleClass="esprit-dropdown">
+        </p-dropdown>
+      </div>
+      
+      <div class="esprit-filter-group">
+        <label>Date Range</label>
+        <p-calendar 
+          [(ngModel)]="dateRange" 
+          selectionMode="range" 
+          [readonlyInput]="false"
+          placeholder="Select date range"
+          (onSelect)="onDateRangeChange()"
+          styleClass="esprit-calendar">
+        </p-calendar>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reservations Table -->
+  <div class="esprit-table-container">
+    <p-table 
+      [value]="filteredReservations" 
+      [loading]="loading"
+      [paginator]="true" 
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} reservations"
+      styleClass="esprit-table">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Formation</th>
+          <th>Reservation Date</th>
+          <th>Formation Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-reservation>
+        <tr>
+          <td>
+            <div class="esprit-formation-info">
+              <div class="esprit-formation-header">
+                <span class="esprit-formation-title">{{ reservation.formation?.titre }}</span>
+                <span class="esprit-formation-mode" 
+                      [class.online]="reservation.formation?.enLigne"
+                      [class.in-person]="!reservation.formation?.enLigne">
+                  {{ reservation.formation?.enLigne ? 'Online' : 'In-Person' }}
+                </span>
+              </div>
+              <span class="esprit-formation-category">{{ reservation.formation?.categorie?.nom }}</span>
+              <span class="esprit-formation-location" *ngIf="!reservation.formation?.enLigne">
+                <i class="pi pi-map-marker"></i> {{ reservation.formation?.lieu || 'Location TBD' }}
+              </span>
+              <span class="esprit-formation-location" *ngIf="reservation.formation?.enLigne">
+                <i class="pi pi-video"></i> Online Meeting
+              </span>
+            </div>
+          </td>
+          <td>
+            <span class="esprit-date">{{ reservation.dateReservation | date:'medium' }}</span>
+          </td>
+          <td>
+            <div class="esprit-formation-dates">
+              <span class="esprit-start-date">{{ getFormationStartDate(reservation) }}</span>
+              <span class="esprit-date-status" 
+                    [class.started]="hasFormationStarted(reservation)"
+                    [class.upcoming]="!hasFormationStarted(reservation)">
+                {{ hasFormationStarted(reservation) ? 'Started' : 'Upcoming' }}
+              </span>
+            </div>
+          </td>
+          <td>
+            <p-tag 
+              [value]="getStatusLabel(reservation.statut)" 
+              [severity]="getStatusSeverity(reservation.statut)"
+              styleClass="esprit-status-tag">
+            </p-tag>
+          </td>
+          <td>
+            <div class="esprit-action-buttons">
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-eye" 
+                class="p-button-rounded p-button-text p-button-info"
+                (click)="viewReservationDetails(reservation)"
+                pTooltip="View Details">
+              </button>
+              
+              <button 
+                pButton 
+                type="button" 
+                icon="pi pi-times" 
+                class="p-button-rounded p-button-text p-button-warning"
+                (click)="cancelMyReservation(reservation)"
+                *ngIf="canCancelReservation(reservation) && !hasFormationStarted(reservation)"
+                pTooltip="Cancel Reservation">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="esprit-empty-message">
+            <div class="esprit-empty-state">
+              <i class="pi pi-calendar-times"></i>
+              <h3>No Reservations Found</h3>
+              <p>You haven't made any reservations yet.</p>
+              <button 
+                pButton 
+                type="button" 
+                label="Browse Formations" 
+                icon="pi pi-search"
+                class="p-button-outlined"
+                (click)="navigateToFormations()">
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- Reservation Details Dialog -->
+<p-dialog 
+  header="My Reservation Details" 
+  [(visible)]="showDetailsDialog" 
+  [modal]="true" 
+  [style]="{width: '600px'}"
+  styleClass="esprit-dialog">
+  
+  <div class="esprit-reservation-details" *ngIf="selectedReservation">
+    <div class="esprit-detail-section">
+      <h4>Formation Information</h4>
+      <div class="esprit-detail-grid">
+        <div class="esprit-detail-item">
+          <label>Title:</label>
+          <span>{{ selectedReservation.formation?.titre }}</span>
+        </div>
+        <div class="esprit-detail-item">
+          <label>Category:</label>
+          <span>{{ selectedReservation.formation?.categorie?.nom }}</span>
+        </div>
+        <div class="esprit-detail-item">
+          <label>Mode:</label>
+          <span>{{ selectedReservation.formation?.enLigne ? 'Online' : 'In-Person' }}</span>
+        </div>
+        <div class="esprit-detail-item" *ngIf="!selectedReservation.formation?.enLigne">
+          <label>Location:</label>
+          <span>{{ selectedReservation.formation?.lieu || 'TBD' }}</span>
+        </div>
+        <div class="esprit-detail-item" *ngIf="selectedReservation.formation?.enLigne">
+          <label>Meeting Link:</label>
+          <span>{{ selectedReservation.formation?.meetLink || 'Will be provided' }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="esprit-detail-section">
+      <h4>Schedule Information</h4>
+      <div class="esprit-detail-grid">
+        <div class="esprit-detail-item">
+          <label>Start Date:</label>
+          <span>{{ selectedReservation.formation?.dateDebut | date:'full' }}</span>
+        </div>
+        <div class="esprit-detail-item">
+          <label>End Date:</label>
+          <span>{{ selectedReservation.formation?.dateFin | date:'full' }}</span>
+        </div>
+        <div class="esprit-detail-item" *ngIf="selectedReservation.formation?.dureePauseMinutes">
+          <label>Break Duration:</label>
+          <span>{{ selectedReservation.formation?.dureePauseMinutes }} minutes</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="esprit-detail-section">
+      <h4>Reservation Information</h4>
+      <div class="esprit-detail-grid">
+        <div class="esprit-detail-item">
+          <label>Reservation Date:</label>
+          <span>{{ selectedReservation.dateReservation | date:'full' }}</span>
+        </div>
+        <div class="esprit-detail-item">
+          <label>Status:</label>
+          <p-tag 
+            [value]="getStatusLabel(selectedReservation.statut)" 
+            [severity]="getStatusSeverity(selectedReservation.statut)">
+          </p-tag>
+        </div>
+        <div class="esprit-detail-item">
+          <label>Formation Status:</label>
+          <span class="esprit-formation-status" 
+                [class.started]="hasFormationStarted(selectedReservation)"
+                [class.upcoming]="!hasFormationStarted(selectedReservation)">
+            {{ hasFormationStarted(selectedReservation) ? 'Formation has started' : 'Formation upcoming' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formation Description -->
+    <div class="esprit-detail-section" *ngIf="selectedReservation.formation?.description">
+      <h4>Description</h4>
+      <p class="esprit-description">{{ selectedReservation.formation?.description }}</p>
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <div class="esprit-dialog-actions">
+      <button 
+        pButton 
+        type="button" 
+        label="Cancel Reservation" 
+        icon="pi pi-times"
+        class="p-button-warning"
+        (click)="cancelMyReservation(selectedReservation)"
+        *ngIf="canCancelReservation(selectedReservation) && !hasFormationStarted(selectedReservation)">
+      </button>
+      
+      <button 
+        pButton 
+        type="button" 
+        label="Close" 
+        icon="pi pi-times"
+        class="p-button-secondary"
+        (click)="closeDetailsDialog()">
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog styleClass="esprit-confirm-dialog"></p-confirmDialog>

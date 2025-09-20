@@ -1,0 +1,212 @@
+<!-- Admin Dashboard -->
+<div class="esprit-dashboard">
+  <!-- Dashboard Header -->
+  <div class="esprit-dashboard-header">
+    <div class="esprit-dashboard-title">
+      <h1>
+        <i class="pi pi-home"></i>
+        Admin Dashboard
+      </h1>
+      <p>Welcome to the Esprit Educational Platform Administration</p>
+    </div>
+    <div class="esprit-dashboard-actions">
+      <p-button 
+        label="Refresh Data" 
+        icon="pi pi-refresh" 
+        styleClass="esprit-button-secondary"
+        (click)="loadDashboardData()">
+      </p-button>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="esprit-stats-grid">
+    <div class="esprit-stat-card esprit-stat-formations">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-book"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ totalFormations }}</div>
+        <div class="esprit-stat-label">Total Formations</div>
+      </div>
+    </div>
+
+    <div class="esprit-stat-card esprit-stat-enseignants">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-user-edit"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ totalEnseignants }}</div>
+        <div class="esprit-stat-label">Enseignants</div>
+      </div>
+    </div>
+
+    <div class="esprit-stat-card esprit-stat-categories">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-tags"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ totalCategories }}</div>
+        <div class="esprit-stat-label">Categories</div>
+      </div>
+    </div>
+
+    <div class="esprit-stat-card esprit-stat-reservations">
+      <div class="esprit-stat-icon">
+        <i class="pi pi-calendar-plus"></i>
+      </div>
+      <div class="esprit-stat-content">
+        <div class="esprit-stat-number">{{ totalReservations }}</div>
+        <div class="esprit-stat-label">Reservations</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div class="esprit-dashboard-content">
+    <!-- Charts Section -->
+    <div class="esprit-dashboard-row">
+      <div class="esprit-dashboard-col-8">
+        <p-card styleClass="esprit-dashboard-card">
+          <ng-template pTemplate="header">
+            <div class="esprit-card-header">
+              <h3>
+                <i class="pi pi-chart-pie"></i>
+                Formations by Category
+              </h3>
+            </div>
+          </ng-template>
+          
+          <div class="esprit-chart-container" *ngIf="formationsChartData">
+            <p-chart 
+              type="doughnut" 
+              [data]="formationsChartData" 
+              [options]="chartOptions"
+              height="300">
+            </p-chart>
+          </div>
+          
+          <div class="esprit-no-data" *ngIf="!formationsChartData">
+            <i class="pi pi-chart-pie"></i>
+            <p>No formation data available</p>
+          </div>
+        </p-card>
+      </div>
+
+      <div class="esprit-dashboard-col-4">
+        <p-card styleClass="esprit-dashboard-card">
+          <ng-template pTemplate="header">
+            <div class="esprit-card-header">
+              <h3>
+                <i class="pi pi-bolt"></i>
+                Quick Actions
+              </h3>
+            </div>
+          </ng-template>
+          
+          <div class="esprit-quick-actions">
+            <a class="esprit-action-button" routerLink="/admin/formations">
+              <i class="pi pi-plus"></i>
+              <span>Add Formation</span>
+            </a>
+            
+            <a class="esprit-action-button" routerLink="/admin/enseignants">
+              <i class="pi pi-users"></i>
+              <span>Manage Enseignants</span>
+            </a>
+            
+            <a class="esprit-action-button" routerLink="/admin/categories">
+              <i class="pi pi-tags"></i>
+              <span>View Categories</span>
+            </a>
+            
+            <a class="esprit-action-button" routerLink="/admin/reservations">
+              <i class="pi pi-calendar"></i>
+              <span>Check Reservations</span>
+            </a>
+          </div>
+        </p-card>
+      </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="esprit-dashboard-row">
+      <div class="esprit-dashboard-col-12">
+        <p-card styleClass="esprit-dashboard-card">
+          <ng-template pTemplate="header">
+            <div class="esprit-card-header">
+              <h3>
+                <i class="pi pi-clock"></i>
+                Recent Formations
+              </h3>
+            </div>
+          </ng-template>
+          
+          <p-table 
+            [value]="recentFormations" 
+            [loading]="loading"
+            styleClass="esprit-dashboard-table">
+            
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Mode</th>
+                <th>Start Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="body" let-formation>
+              <tr>
+                <td>
+                  <div class="esprit-formation-title">
+                    {{ formation.titre }}
+                  </div>
+                </td>
+                <td>
+                  <p-tag 
+                    [value]="formation.categorie?.nom || 'N/A'" 
+                    styleClass="esprit-tag-category">
+                  </p-tag>
+                </td>
+                <td>
+                  <span class="esprit-mode-badge" [class]="formation.enLigne ? 'esprit-mode-online' : 'esprit-mode-offline'">
+                    <i [class]="formation.enLigne ? 'pi pi-video' : 'pi pi-users'"></i>
+                    {{ formation.enLigne ? 'Online' : 'In-Person' }}
+                  </span>
+                </td>
+                <td>{{ formation.dateDebut | date:'short' }}</td>
+                <td>
+                  <p-tag 
+                    value="Active" 
+                    [severity]="getFormationStatusSeverity('active')">
+                  </p-tag>
+                </td>
+                <td>
+                  <p-button 
+                    icon="pi pi-eye" 
+                    styleClass="p-button-rounded p-button-text p-button-sm"
+                    pTooltip="View Details">
+                  </p-button>
+                </td>
+              </tr>
+            </ng-template>
+            
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6" class="esprit-empty-message">
+                  <div class="esprit-no-data">
+                    <i class="pi pi-info-circle"></i>
+                    <p>No recent formations found</p>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </div>
+    </div>
+  </div>
+</div>

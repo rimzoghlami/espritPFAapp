@@ -1,0 +1,221 @@
+<!-- Modern Admin Profile -->
+<div class="esprit-profile" [class.loading]="loading">
+  <!-- Profile Header -->
+  <div class="esprit-profile-header">
+    <div class="esprit-profile-title">
+      <h1>
+        <i class="pi pi-user-edit"></i>
+        Admin Profile
+      </h1>
+      <p>Manage your account settings and personal information</p>
+    </div>
+    <div class="esprit-profile-actions">
+      <button pButton 
+              type="button" 
+              icon="pi pi-refresh" 
+              class="p-button-outlined p-button-sm"
+              pTooltip="Refresh Profile"
+              (click)="loadUserProfile()">
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Profile Content -->
+  <div class="esprit-profile-container">
+    <!-- Personal Information Card -->
+    <div class="esprit-card esprit-profile-card">
+      <div class="esprit-card-header">
+        <h2>
+          <i class="pi pi-user"></i>
+          Personal Information
+        </h2>
+        <p>Your account details and contact information</p>
+      </div>
+      
+      <div class="esprit-profile-main">
+        <!-- Profile Avatar & Name Section -->
+        <div class="esprit-profile-identity">
+          <div class="esprit-avatar-container">
+            <div class="esprit-avatar">
+              {{ getInitials() }}
+              <div class="esprit-status-indicator"></div>
+            </div>
+          </div>
+          
+          <div class="esprit-identity-info">
+            <div class="esprit-name-section">
+              <h1 class="esprit-full-name">
+                {{ profileForm.firstName }} {{ profileForm.lastName }}
+              </h1>
+              <div class="esprit-name-breakdown">
+                <span class="esprit-first-name">{{ profileForm.firstName }}</span>
+                <span class="esprit-last-name">{{ profileForm.lastName }}</span>
+              </div>
+            </div>
+            
+            <div class="esprit-member-since">
+              <i class="pi pi-calendar"></i>
+              <span>Member since {{ formatDate(getCurrentDate()) }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="esprit-contact-grid">
+          <div class="esprit-contact-item">
+            <div class="esprit-contact-icon">
+              <i class="pi pi-envelope"></i>
+            </div>
+            <div class="esprit-contact-details">
+              <span>{{ profileForm.email }}</span>
+            </div>
+          </div>
+          
+          <div class="esprit-contact-item">
+            <div class="esprit-contact-icon">
+              <i class="pi pi-phone"></i>
+            </div>
+            <div class="esprit-contact-details">
+              <span>{{ profileForm.phoneNumber }}</span>
+            </div>
+          </div>
+          
+          <div class="esprit-contact-item">
+            <div class="esprit-contact-icon">
+              <i class="pi pi-map-marker"></i>
+            </div>
+            <div class="esprit-contact-details">
+              <span>{{ profileForm.address }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="esprit-profile-actions">
+          <button pButton 
+                  type="button" 
+                  icon="pi pi-pencil" 
+                  label="Edit Profile" 
+                  class="esprit-btn-primary"
+                  pTooltip="Edit your profile information"
+                  (click)="showEditProfileDialog()">
+          </button>
+          
+          <button pButton 
+                  type="button" 
+                  icon="pi pi-key" 
+                  label="Change Password" 
+                  class="esprit-btn-secondary"
+                  pTooltip="Change your password"
+                  (click)="showChangePasswordDialog()">
+          </button>
+          
+          <button pButton 
+                  type="button" 
+                  icon="pi pi-download" 
+                  label="Export Data" 
+                  class="esprit-btn-outline"
+                  pTooltip="Export your account data"
+                  (click)="exportData()">
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+<!-- Edit Profile Dialog -->
+<p-dialog 
+  header="Edit Profile" 
+  [(visible)]="showEditDialog" 
+  [modal]="true" 
+  [style]="{width: '600px'}" 
+  [draggable]="false" 
+  [resizable]="false"
+  [closable]="true"
+  styleClass="esprit-dialog">
+  
+  <div class="esprit-edit-form">
+    <div class="esprit-form-grid">
+      <div class="esprit-form-group">
+        <label for="firstName">First Name *</label>
+        <input 
+          pInputText 
+          id="firstName" 
+          [(ngModel)]="editForm.firstName" 
+          placeholder="Enter first name"
+          class="esprit-input">
+      </div>
+      
+      <div class="esprit-form-group">
+        <label for="lastName">Last Name *</label>
+        <input 
+          pInputText 
+          id="lastName" 
+          [(ngModel)]="editForm.lastName" 
+          placeholder="Enter last name"
+          class="esprit-input">
+      </div>
+      
+      <div class="esprit-form-group esprit-form-full">
+        <label for="email">Email Address *</label>
+        <input 
+          pInputText 
+          id="email" 
+          [(ngModel)]="editForm.email" 
+          placeholder="Enter email address"
+          type="email"
+          class="esprit-input">
+      </div>
+      
+      <div class="esprit-form-group esprit-form-full">
+        <label for="phoneNumber">Phone Number</label>
+        <input 
+          pInputText 
+          id="phoneNumber" 
+          [(ngModel)]="editForm.phoneNumber" 
+          placeholder="Enter phone number"
+          class="esprit-input">
+      </div>
+      
+      <div class="esprit-form-group esprit-form-full">
+        <label for="address">Address</label>
+        <textarea 
+          pInputTextarea 
+          id="address" 
+          [(ngModel)]="editForm.address" 
+          placeholder="Enter address"
+          rows="3"
+          class="esprit-input">
+        </textarea>
+      </div>
+    </div>
+  </div>
+  
+  <ng-template pTemplate="footer">
+    <div class="esprit-dialog-footer">
+      <button 
+        pButton 
+        type="button" 
+        label="Cancel" 
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="cancelEdit()">
+      </button>
+      <button 
+        pButton 
+        type="button" 
+        label="Save Changes" 
+        icon="pi pi-check"
+        class="esprit-btn-primary"
+        [loading]="loading"
+        (click)="saveProfile()">
+      </button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>

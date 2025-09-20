@@ -1,0 +1,254 @@
+// Red Header Bar Styles
+.esprit-red-header-bar {
+  background: linear-gradient(135deg, var(--esprit-primary) 0%, #c70510 100%);
+  color: white;
+  padding: 1.5rem 2rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .esprit-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .esprit-header-icon {
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    
+    i {
+      color: white;
+      animation: pulse 2s infinite;
+    }
+  }
+
+  .esprit-header-text {
+    flex: 1;
+    
+    h2 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 400;
+    }
+  }
+
+  .esprit-header-badge {
+    .esprit-role-badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      
+      i {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Role Management Styles
+.esprit-role-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 2px solid #dee2e6;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(135deg, var(--esprit-primary) 0%, #c70510 100%);
+    border-radius: 2px 0 0 2px;
+  }
+  
+  .esprit-label {
+    .esprit-label-text {
+      i {
+        color: var(--esprit-primary);
+        margin-right: 0.5rem;
+      }
+    }
+  }
+}
+
+.esprit-role-selector {
+  margin: 1rem 0;
+  
+  .esprit-dropdown {
+    width: 100%;
+    
+    &.esprit-role-dropdown {
+      .p-dropdown {
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          border-color: var(--esprit-primary);
+          box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
+        }
+        
+        &.p-focus {
+          border-color: var(--esprit-primary);
+          box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.2);
+        }
+      }
+    }
+    
+    &.esprit-dropdown-error {
+      .p-dropdown {
+        border-color: #dc3545;
+        
+        &:hover, &.p-focus {
+          border-color: #dc3545;
+          box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+        }
+      }
+    }
+    
+    &.esprit-dropdown-success {
+      .p-dropdown {
+        border-color: #28a745;
+        
+        &:hover, &.p-focus {
+          border-color: #28a745;
+          box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
+        }
+      }
+    }
+  }
+}
+
+.esprit-selected-role {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  
+  i {
+    font-size: 1.1rem;
+    width: 20px;
+    text-align: center;
+  }
+  
+  span {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.esprit-role-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(227, 6, 19, 0.05);
+    border-radius: 6px;
+    margin: 0 -0.5rem;
+    padding: 0.75rem 0.5rem;
+  }
+  
+  .esprit-role-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.05);
+    
+    i {
+      font-size: 1.1rem;
+    }
+  }
+  
+  .esprit-role-info {
+    flex: 1;
+    
+    .esprit-role-name {
+      display: block;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #333;
+      margin-bottom: 0.25rem;
+    }
+    
+    .esprit-role-desc {
+      display: block;
+      font-size: 0.8rem;
+      color: #666;
+      line-height: 1.3;
+    }
+  }
+}
+
+.esprit-role-description {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(227, 6, 19, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid var(--esprit-primary);
+  
+  i {
+    color: var(--esprit-primary);
+    font-size: 0.9rem;
+  }
+  
+  span {
+    font-size: 0.85rem;
+    color: #555;
+    font-weight: 500;
+  }
+}

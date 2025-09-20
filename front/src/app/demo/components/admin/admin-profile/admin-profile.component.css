@@ -1,0 +1,260 @@
+:root {
+  --esprit-red: #e30613;
+  --esprit-dark: #222;
+  --esprit-gray: #f6f6f6;
+  --esprit-white: #fff;
+  --esprit-glass: rgba(255,255,255,0.7);
+}
+
+.esprit-profile {
+  background: linear-gradient(120deg, var(--esprit-white) 60%, var(--esprit-gray) 100%);
+  min-height: 100vh;
+  padding: 3rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.esprit-profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 85%;
+  margin-bottom: 2rem;
+  background: var(--esprit-glass);
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 32px rgba(227,6,19,0.08);
+  padding: 2rem 3rem;
+}
+
+.esprit-profile-title h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--esprit-red);
+  margin-bottom: 0.25rem;
+  letter-spacing: 1px;
+}
+
+.esprit-profile-title p {
+  font-size: 1.1rem;
+  color: var(--esprit-dark);
+  opacity: 0.7;
+}
+
+.esprit-profile-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.esprit-profile-content {
+  width: 85%;
+  display: flex;
+  gap: 2.5rem;
+}
+
+.esprit-profile-row {
+  display: flex;
+  width: 100%;
+  gap: 2.5rem;
+}
+
+.esprit-profile-col-8 {
+  flex: 8;
+}
+
+.esprit-profile-col-4 {
+  flex: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.esprit-profile-card {
+  background: var(--esprit-white);
+  border-radius: 1.5rem;
+  box-shadow: 0 2px 24px rgba(227,6,19,0.07);
+  border: none;
+  padding: 2rem;
+}
+
+.esprit-card-header h3 {
+  color: var(--esprit-red);
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.esprit-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.esprit-section-title {
+  color: var(--esprit-dark);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.esprit-section-line {
+  flex: 1;
+  height: 2px;
+  background: var(--esprit-red);
+  margin-left: 1rem;
+  opacity: 0.2;
+}
+
+.esprit-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.esprit-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.esprit-label {
+  color: var(--esprit-dark);
+  font-weight: 500;
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.esprit-input-wrapper {
+  position: relative;
+}
+
+.esprit-input {
+  width: 100%;
+  padding: 0.7rem 1rem 0.7rem 2.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #eee;
+  background: var(--esprit-gray);
+  font-size: 1rem;
+  color: var(--esprit-dark);
+  transition: border 0.2s;
+}
+.esprit-input:focus {
+  border: 1.5px solid var(--esprit-red);
+  outline: none;
+}
+
+.esprit-input-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--esprit-red);
+  font-size: 1.1rem;
+}
+
+.esprit-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.esprit-button-primary {
+  background: var(--esprit-red) !important;
+  border: none !important;
+  color: var(--esprit-white) !important;
+  font-weight: 600;
+}
+
+.esprit-button-secondary {
+  background: var(--esprit-dark) !important;
+  border: none !important;
+  color: var(--esprit-white) !important;
+}
+
+.esprit-button-outline {
+  background: transparent !important;
+  border: 2px solid var(--esprit-red) !important;
+  color: var(--esprit-red) !important;
+}
+
+.esprit-button-text {
+  background: transparent !important;
+  border: none !important;
+  color: var(--esprit-red) !important;
+}
+
+.esprit-profile-picture-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--esprit-glass);
+  border-radius: 1.5rem;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.07);
+  padding: 2rem;
+}
+
+.esprit-profile-picture {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.esprit-avatar {
+  width: 96px;
+  height: 96px;
+  background: var(--esprit-red);
+  color: var(--esprit-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 16px rgba(227,6,19,0.15);
+}
+
+.esprit-profile-upload-btn {
+  margin-top: 0.5rem;
+  background: var(--esprit-white);
+  color: var(--esprit-red);
+  border: 1.5px solid var(--esprit-red);
+  border-radius: 0.75rem;
+  padding: 0.5rem 1.2rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.esprit-profile-upload-btn:hover {
+  background: var(--esprit-red);
+  color: var(--esprit-white);
+}
+
+.esprit-loading {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--esprit-red);
+  font-size: 1.1rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 900px) {
+  .esprit-profile-content, .esprit-profile-header {
+    flex-direction: column;
+    width: 98%;
+    padding: 1.2rem !important;
+  }
+  .esprit-profile-row {
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  .esprit-profile-col-8, .esprit-profile-col-4 {
+    width: 100%;
+    flex: unset;
+  }
+}

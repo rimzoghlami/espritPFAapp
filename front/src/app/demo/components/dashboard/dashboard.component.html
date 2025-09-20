@@ -1,0 +1,273 @@
+<!-- Modern Esprit Dashboard -->
+<div class="esprit-modern-dashboard">
+  <!-- Dashboard Header -->
+  <div class="esprit-dashboard-header">
+    <div class="esprit-header-content">
+      <div class="esprit-title-section">
+        <h1>
+          <i class="pi pi-chart-line"></i>
+          Analytics Dashboard
+        </h1>
+        <p>Real-time insights and statistics for Esprit Educational Platform</p>
+      </div>
+      <div class="esprit-header-actions">
+        <button class="esprit-refresh-btn" (click)="refreshData()">
+          <i class="pi pi-refresh"></i>
+          <span>Refresh</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Grid -->
+  <div class="esprit-stats-container">
+    <!-- Primary Statistics -->
+    <div class="esprit-primary-stats">
+      <div class="esprit-stat-card esprit-stat-primary">
+        <div class="esprit-stat-header">
+          <div class="esprit-stat-icon">
+            <i class="pi pi-book"></i>
+          </div>
+          <div class="esprit-stat-trend esprit-trend-up">
+            <i class="pi pi-arrow-up"></i>
+            <span>+12%</span>
+          </div>
+        </div>
+        <div class="esprit-stat-content">
+          <div class="esprit-stat-number">{{ totalFormations }}</div>
+          <div class="esprit-stat-label">Total Formations</div>
+          <div class="esprit-stat-description">Active learning programs</div>
+        </div>
+      </div>
+
+      <div class="esprit-stat-card esprit-stat-secondary">
+        <div class="esprit-stat-header">
+          <div class="esprit-stat-icon">
+            <i class="pi pi-users"></i>
+          </div>
+          <div class="esprit-stat-trend esprit-trend-up">
+            <i class="pi pi-arrow-up"></i>
+            <span>+8%</span>
+          </div>
+        </div>
+        <div class="esprit-stat-content">
+          <div class="esprit-stat-number">{{ totalEnseignants }}</div>
+          <div class="esprit-stat-label">Enseignants</div>
+          <div class="esprit-stat-description">Qualified instructors</div>
+        </div>
+      </div>
+
+      <div class="esprit-stat-card esprit-stat-accent">
+        <div class="esprit-stat-header">
+          <div class="esprit-stat-icon">
+            <i class="pi pi-calendar-plus"></i>
+          </div>
+          <div class="esprit-stat-trend esprit-trend-up">
+            <i class="pi pi-arrow-up"></i>
+            <span>+24%</span>
+          </div>
+        </div>
+        <div class="esprit-stat-content">
+          <div class="esprit-stat-number">{{ totalReservations }}</div>
+          <div class="esprit-stat-label">Reservations</div>
+          <div class="esprit-stat-description">Student enrollments</div>
+        </div>
+      </div>
+
+      <div class="esprit-stat-card esprit-stat-neutral">
+        <div class="esprit-stat-header">
+          <div class="esprit-stat-icon">
+            <i class="pi pi-tags"></i>
+          </div>
+          <div class="esprit-stat-trend esprit-trend-stable">
+            <i class="pi pi-minus"></i>
+            <span>0%</span>
+          </div>
+        </div>
+        <div class="esprit-stat-content">
+          <div class="esprit-stat-number">{{ totalCategories }}</div>
+          <div class="esprit-stat-label">Categories</div>
+          <div class="esprit-stat-description">Course categories</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary Statistics -->
+    <div class="esprit-secondary-stats">
+      <div class="esprit-metric-card">
+        <div class="esprit-metric-header">
+          <i class="pi pi-chart-pie"></i>
+          <span>Completion Rate</span>
+        </div>
+        <div class="esprit-metric-value">
+          <span class="esprit-percentage">87.5%</span>
+          <div class="esprit-progress-bar">
+            <div class="esprit-progress-fill" [style.width.%]="87.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="esprit-metric-card">
+        <div class="esprit-metric-header">
+          <i class="pi pi-star"></i>
+          <span>Average Rating</span>
+        </div>
+        <div class="esprit-metric-value">
+          <span class="esprit-rating">4.8</span>
+          <div class="esprit-stars">
+            <i class="pi pi-star-fill"></i>
+            <i class="pi pi-star-fill"></i>
+            <i class="pi pi-star-fill"></i>
+            <i class="pi pi-star-fill"></i>
+            <i class="pi pi-star-fill"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="esprit-metric-card">
+        <div class="esprit-metric-header">
+          <i class="pi pi-clock"></i>
+          <span>Avg. Duration</span>
+        </div>
+        <div class="esprit-metric-value">
+          <span class="esprit-duration">2.5h</span>
+          <div class="esprit-duration-indicator">
+            <div class="esprit-duration-bar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts and Analytics Section -->
+  <div class="esprit-analytics-section">
+    <div class="esprit-chart-container">
+      <div class="esprit-chart-card">
+        <div class="esprit-chart-header">
+          <h3>
+            <i class="pi pi-chart-bar"></i>
+            Formation Analytics
+          </h3>
+          <div class="esprit-chart-controls">
+            <button class="esprit-chart-btn" [class.active]="chartPeriod === 'week'" (click)="setChartPeriod('week')">Week</button>
+            <button class="esprit-chart-btn" [class.active]="chartPeriod === 'month'" (click)="setChartPeriod('month')">Month</button>
+            <button class="esprit-chart-btn" [class.active]="chartPeriod === 'year'" (click)="setChartPeriod('year')">Year</button>
+          </div>
+        </div>
+        <div class="esprit-chart-content">
+          <p-chart 
+            type="bar" 
+            [data]="formationChartData" 
+            [options]="chartOptions"
+            height="300">
+          </p-chart>
+        </div>
+      </div>
+    </div>
+
+    <div class="esprit-insights-container">
+      <div class="esprit-insights-card">
+        <div class="esprit-insights-header">
+          <h3>
+            <i class="pi pi-lightbulb"></i>
+            Key Insights
+          </h3>
+        </div>
+        <div class="esprit-insights-content">
+          <div class="esprit-insight-item">
+            <div class="esprit-insight-icon esprit-insight-positive">
+              <i class="pi pi-arrow-up"></i>
+            </div>
+            <div class="esprit-insight-text">
+              <h4>Formation Growth</h4>
+              <p>New formations increased by 24% this month</p>
+            </div>
+          </div>
+
+          <div class="esprit-insight-item">
+            <div class="esprit-insight-icon esprit-insight-info">
+              <i class="pi pi-info-circle"></i>
+            </div>
+            <div class="esprit-insight-text">
+              <h4>Peak Hours</h4>
+              <p>Most activity between 10 AM - 2 PM</p>
+            </div>
+          </div>
+
+          <div class="esprit-insight-item">
+            <div class="esprit-insight-icon esprit-insight-warning">
+              <i class="pi pi-exclamation-triangle"></i>
+            </div>
+            <div class="esprit-insight-text">
+              <h4>Attention Needed</h4>
+              <p>3 formations require instructor assignment</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions Section -->
+  <div class="esprit-quick-actions-section">
+    <div class="esprit-actions-header">
+      <h3>
+        <i class="pi pi-bolt"></i>
+        Quick Actions
+      </h3>
+    </div>
+    <div class="esprit-actions-grid">
+      <a class="esprit-action-card" routerLink="/admin/formations">
+        <div class="esprit-action-icon">
+          <i class="pi pi-plus"></i>
+        </div>
+        <div class="esprit-action-content">
+          <h4>Add Formation</h4>
+          <p>Create new learning program</p>
+        </div>
+        <div class="esprit-action-arrow">
+          <i class="pi pi-arrow-right"></i>
+        </div>
+      </a>
+
+      <a class="esprit-action-card" routerLink="/admin/enseignants">
+        <div class="esprit-action-icon">
+          <i class="pi pi-user-plus"></i>
+        </div>
+        <div class="esprit-action-content">
+          <h4>Manage Enseignants</h4>
+          <p>Add or edit instructors</p>
+        </div>
+        <div class="esprit-action-arrow">
+          <i class="pi pi-arrow-right"></i>
+        </div>
+      </a>
+
+      <a class="esprit-action-card" routerLink="/admin/categories">
+        <div class="esprit-action-icon">
+          <i class="pi pi-tags"></i>
+        </div>
+        <div class="esprit-action-content">
+          <h4>Categories</h4>
+          <p>Organize course categories</p>
+        </div>
+        <div class="esprit-action-arrow">
+          <i class="pi pi-arrow-right"></i>
+        </div>
+      </a>
+
+      <a class="esprit-action-card" routerLink="/admin/reservations">
+        <div class="esprit-action-icon">
+          <i class="pi pi-calendar"></i>
+        </div>
+        <div class="esprit-action-content">
+          <h4>Reservations</h4>
+          <p>View student enrollments</p>
+        </div>
+        <div class="esprit-action-arrow">
+          <i class="pi pi-arrow-right"></i>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>

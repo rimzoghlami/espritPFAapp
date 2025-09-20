@@ -1,0 +1,322 @@
+:host {
+  display: block;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+}
+
+.esprit-about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.esprit-about-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 3rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(220, 38, 38, 0.05) 0%, rgba(255, 255, 255, 0) 60%);
+    z-index: -1;
+    opacity: 0.6;
+    animation: rotate 30s linear infinite;
+  }
+}
+
+/* Header Section */
+.esprit-about-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid rgba(220, 38, 38, 0.1);
+}
+
+.esprit-about-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  color: white;
+  font-size: 2rem;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+}
+
+.esprit-about-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.025em;
+}
+
+.esprit-about-subtitle {
+  font-size: 1.25rem;
+  color: #dc2626;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Content Sections */
+.esprit-about-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.esprit-about-section {
+  background: rgba(249, 250, 251, 0.5);
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid rgba(220, 38, 38, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(249, 250, 251, 0.8);
+    border-color: rgba(220, 38, 38, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.1);
+  }
+}
+
+.esprit-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(220, 38, 38, 0.1);
+
+  i {
+    color: #dc2626;
+    font-size: 1.5rem;
+  }
+}
+
+.esprit-section-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #374151;
+  margin: 0;
+}
+
+/* Features Grid */
+.esprit-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.esprit-feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  border: 1px solid rgba(220, 38, 38, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(220, 38, 38, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+
+    .esprit-feature-icon {
+      background: rgba(220, 38, 38, 0.15);
+      transform: scale(1.05);
+    }
+  }
+}
+
+.esprit-feature-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(220, 38, 38, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc2626;
+  font-size: 1.25rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.esprit-feature-content {
+  flex: 1;
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 0.5rem 0;
+  }
+
+  p {
+    font-size: 0.95rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+/* Contact Grid */
+.esprit-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.esprit-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  border: 1px solid rgba(220, 38, 38, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(220, 38, 38, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+
+    .esprit-contact-icon {
+      background: rgba(220, 38, 38, 0.15);
+      transform: scale(1.05);
+    }
+  }
+}
+
+.esprit-contact-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(220, 38, 38, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #dc2626;
+  font-size: 1.25rem;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.esprit-contact-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.esprit-contact-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.esprit-contact-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+/* System Information */
+.esprit-system-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.esprit-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  border: 1px solid rgba(220, 38, 38, 0.05);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(220, 38, 38, 0.1);
+    transform: translateX(4px);
+  }
+}
+
+.esprit-info-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.esprit-info-value {
+  font-weight: 500;
+  color: #dc2626;
+  font-family: 'Courier New', monospace;
+}
+
+/* Animation */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  :host {
+    padding: 1rem;
+  }
+
+  .esprit-about-card {
+    padding: 2rem;
+  }
+
+  .esprit-about-title {
+    font-size: 2rem;
+  }
+
+  .esprit-about-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .esprit-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .esprit-contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .esprit-info-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

@@ -1,0 +1,509 @@
+// Esprit Enseignant Reservations Component Styles
+.esprit-enseignant-reservations-container {
+  padding: 1.5rem;
+  background: #f9fafb;
+  min-height: 100vh;
+
+  // Header Section
+  .esprit-enseignant-header {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .esprit-header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      .esprit-header-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        i {
+          font-size: 2rem;
+          color: #e30613;
+        }
+
+        h2 {
+          margin: 0;
+          color: #111827;
+          font-size: 1.75rem;
+          font-weight: 600;
+        }
+
+        p {
+          margin: 0.5rem 0 0 0;
+          color: #6b7280;
+          font-size: 1rem;
+        }
+      }
+
+      .esprit-header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+
+        .esprit-refresh-btn, .esprit-new-reservation-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.75rem 1.5rem;
+          border: none;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          i {
+            font-size: 1rem;
+          }
+        }
+
+        .esprit-refresh-btn {
+          background: #e30613;
+          color: white;
+
+          &:hover {
+            background: #c70511;
+            transform: translateY(-1px);
+          }
+        }
+
+        .esprit-new-reservation-btn {
+          background: #10b981;
+          color: white;
+
+          &:hover {
+            background: #059669;
+            transform: translateY(-1px);
+          }
+        }
+      }
+    }
+  }
+
+  // Statistics Dashboard
+  .esprit-stats-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+
+    .esprit-stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      .esprit-stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        i {
+          font-size: 1.25rem;
+          color: white;
+        }
+      }
+
+      .esprit-stat-content {
+        display: flex;
+        flex-direction: column;
+
+        .esprit-stat-number {
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: #111827;
+          line-height: 1;
+        }
+
+        .esprit-stat-label {
+          font-size: 0.875rem;
+          color: #6b7280;
+          font-weight: 500;
+        }
+      }
+
+      &.esprit-total .esprit-stat-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      &.esprit-confirmed .esprit-stat-icon {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
+
+      &.esprit-pending .esprit-stat-icon {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      }
+
+      &.esprit-cancelled .esprit-stat-icon {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      }
+    }
+  }
+
+  // Filters Section
+  .esprit-filters-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    .esprit-filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+
+      .esprit-filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        label {
+          font-weight: 600;
+          color: #374151;
+          font-size: 0.875rem;
+        }
+
+        ::ng-deep .esprit-dropdown,
+        ::ng-deep .esprit-calendar {
+          .p-dropdown,
+          .p-calendar {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+
+            &:focus-within {
+              border-color: #e30613;
+              box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Table Container
+  .esprit-table-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    ::ng-deep .esprit-table {
+      .p-datatable-header {
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 1rem;
+      }
+
+      .p-datatable-thead > tr > th {
+        background: #f9fafb;
+        color: #374151;
+        font-weight: 600;
+        padding: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+      }
+
+      .p-datatable-tbody > tr > td {
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      .p-datatable-tbody > tr:hover {
+        background: #f9fafb;
+      }
+
+      .p-paginator {
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+        padding: 1rem;
+      }
+    }
+
+    // Formation Info Styling
+    .esprit-formation-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .esprit-formation-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+
+        .esprit-formation-title {
+          font-weight: 600;
+          color: #111827;
+          font-size: 1rem;
+        }
+
+        .esprit-formation-mode {
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          font-weight: 500;
+
+          &.online {
+            background: #dbeafe;
+            color: #1e40af;
+          }
+
+          &.in-person {
+            background: #f3e8ff;
+            color: #7c3aed;
+          }
+        }
+      }
+
+      .esprit-formation-category {
+        font-size: 0.875rem;
+        color: #6b7280;
+        font-weight: 500;
+      }
+
+      .esprit-formation-location {
+        font-size: 0.875rem;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+
+        i {
+          color: #e30613;
+        }
+      }
+    }
+
+    // Formation Dates Styling
+    .esprit-formation-dates {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .esprit-start-date {
+        color: #374151;
+        font-weight: 500;
+      }
+
+      .esprit-date-status {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        width: fit-content;
+
+        &.upcoming {
+          background: #dbeafe;
+          color: #1e40af;
+        }
+
+        &.started {
+          background: #dcfce7;
+          color: #166534;
+        }
+      }
+    }
+
+    // Date Styling
+    .esprit-date {
+      color: #374151;
+      font-weight: 500;
+    }
+
+    // Action Buttons
+    .esprit-action-buttons {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    // Empty State
+    .esprit-empty-message {
+      text-align: center;
+      padding: 3rem;
+
+      .esprit-empty-state {
+        i {
+          font-size: 3rem;
+          color: #d1d5db;
+          margin-bottom: 1rem;
+        }
+
+        h3 {
+          color: #374151;
+          margin-bottom: 0.5rem;
+        }
+
+        p {
+          color: #6b7280;
+          margin-bottom: 1.5rem;
+        }
+      }
+    }
+  }
+}
+
+// Dialog Styling
+::ng-deep .esprit-dialog {
+  .p-dialog-header {
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .esprit-reservation-details {
+    .esprit-detail-section {
+      margin-bottom: 1.5rem;
+
+      h4 {
+        color: #111827;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        border-bottom: 2px solid #e30613;
+        padding-bottom: 0.5rem;
+      }
+
+      .esprit-detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+
+        .esprit-detail-item {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+
+          label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+          }
+
+          span {
+            color: #111827;
+          }
+
+          .esprit-formation-status {
+            font-weight: 500;
+
+            &.upcoming {
+              color: #1e40af;
+            }
+
+            &.started {
+              color: #166534;
+            }
+          }
+        }
+      }
+
+      .esprit-description {
+        color: #374151;
+        line-height: 1.6;
+        margin: 0;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        border-left: 4px solid #e30613;
+      }
+    }
+  }
+
+  .esprit-dialog-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+  }
+}
+
+// Status Tag Styling
+::ng-deep .esprit-status-tag {
+  &.p-tag-success {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  &.p-tag-warning {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  &.p-tag-danger {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .esprit-enseignant-reservations-container {
+    padding: 1rem;
+
+    .esprit-enseignant-header .esprit-header-content {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .esprit-header-actions {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .esprit-stats-dashboard {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .esprit-filters-section .esprit-filters-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .esprit-table-container {
+      ::ng-deep .esprit-table {
+        .p-datatable-thead > tr > th,
+        .p-datatable-tbody > tr > td {
+          padding: 0.5rem;
+          font-size: 0.875rem;
+        }
+      }
+
+      .esprit-formation-info {
+        .esprit-formation-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+      }
+
+      .esprit-action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .esprit-enseignant-reservations-container {
+    .esprit-stats-dashboard {
+      grid-template-columns: 1fr;
+    }
+  }
+}

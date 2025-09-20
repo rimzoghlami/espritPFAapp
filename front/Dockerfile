@@ -1,17 +1,33 @@
-# Use a lightweight nginx image to serve the Angular build output
+# Multi-stage build for Angular application
+
+# Stage 1: Build the application
+FROM node:18-alpine AS build
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build --prod
+
+# Stage 2: Serve the application with Nginx
 FROM nginx:alpine
 
-# Remove default nginx static content
-RUN rm -rf /usr/share/nginx/html/*
+# Copy built application from build stage
+COPY --from=build /app/dist/* /usr/share/nginx/html/
 
-# Copy Angular build output to nginx html folder
-COPY dist/front/ /usr/share/nginx/html/
-
-# Copy custom nginx configuration to replace the default one
+# Copy custom nginx configuration (optional)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
 EXPOSE 80
 
-# Start nginx server
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]

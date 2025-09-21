@@ -58,104 +58,111 @@ pipeline {
             }
         }
 
-        stage("Fix Configuration Files") {
+        stage("EMERGENCY FIX - Replace Corrupted Properties") {
             steps {
                 script {
-                    // Split the mixed application.properties files into separate service configs
-                    echo "Fixing configuration files for microservices..."
+                    echo "EMERGENCY: Replacing all corrupted application.properties files..."
                     
-                    // Check if we have the mixed configuration issue
-                    def mixedConfigFound = false
-                    
+                    // Remove all existing application.properties files that might be corrupted
                     sh '''
-                        # Check for mixed configurations in properties files
-                        find . -name "application.properties" -type f | while read file; do
-                            if grep -q "EurekaServer" "$file" && grep -q "Formation-Service" "$file"; then
-                                echo "Found mixed configuration in: $file"
-                                echo "true" > /tmp/mixed_config_found
-                            fi
-                        done
+                        find . -name "application.properties" -type f -delete
+                        echo "All application.properties files removed"
                     '''
                     
-                    // If mixed config found, split it
-                    if (fileExists('/tmp/mixed_config_found')) {
-                        echo "Splitting mixed configurations..."
-                        
-                        // Create separate application.properties for each service
-                        
-                        // EurekaServer properties
-                        if (fileExists('back/EurekaServer') || fileExists('back/Eureka-Server')) {
-                            def eurekaDir = fileExists('back/EurekaServer') ? 'back/EurekaServer' : 'back/Eureka-Server'
-                            sh "mkdir -p ${eurekaDir}/src/main/resources"
-                            writeFile file: "${eurekaDir}/src/main/resources/application.properties", text: '''server.error.include-binding-errors=always
-server.error.include-message=always
-spring.application.name=EurekaServer
-server.servlet.context-path=/
-server.port=8761
-eureka.client.register-with-eureka=false
-eureka.client.fetch-registry=false
-eureka.instance.hostname=localhost
-eureka.server.eviction-interval-timer-in-ms=60000
-eureka.instance.lease-expiration-duration-in-seconds=90
-eureka.instance.lease-renewal-interval-in-seconds=30'''
-                        }
-                        
-                        // Formation-Service properties
-                        if (fileExists('back/Formation-Service')) {
-                            sh "mkdir -p back/Formation-Service/src/main/resources"
-                            writeFile file: 'back/Formation-Service/src/main/resources/application.properties', text: '''spring.application.name=Formation-Service
+                    // Create clean Formation-Service properties
+                    if (fileExists('back/Formation-Service')) {
+                        sh 'mkdir -p back/Formation-Service/src/main/resources'
+                        writeFile file: 'back/Formation-Service/src/main/resources/application.properties', text: '''spring.application.name=Formation-Service
 server.servlet.context-path=/Formation-Service
 server.port=9094
-server.session.cookie.secure=true
+
+# Database Configuration
 spring.datasource.url=jdbc:mysql://localhost:3306/Formation-Service?createDatabaseIfNotExist=true
 spring.datasource.username=root
 spring.datasource.password=
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
 spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
+
+# Eureka Client Configuration
 eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka
 eureka.client.register-with-eureka=true
 eureka.client.fetch-registry=true
 eureka.instance.prefer-ip-address=true
 eureka.instance.hostname=localhost
+
+# File Upload Configuration
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB
-spring.web.cors.allowed-origins=http://localhost:4200
-spring.web.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
-spring.web.cors.allowed-headers=*
-spring.web.cors.allow-credentials=true'''
-                        }
-                        
-                        // User-Service properties
-                        if (fileExists('back/User-Service')) {
-                            sh "mkdir -p back/User-Service/src/main/resources"
-                            writeFile file: 'back/User-Service/src/main/resources/application.properties', text: '''spring.application.name=Auth
-server.port=8089
-spring.datasource.url=jdbc:mysql://localhost:3306/onsjabbes?createDatabaseIfNotExist=true
-spring.datasource.username=root
-spring.datasource.password=
-spring.kafka.bootstrap-servers=localhost:9092
-spring.jpa.show-sql=true
-spring.jpa.hibernate.ddl-auto=update
-logging.level.root=info
-logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} -%level -%logger{60} %msg %n
-server.servlet.context-path=/tests
+
+# CORS Configuration
 spring.web.cors.allowed-origins=http://localhost:4200
 spring.web.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
 spring.web.cors.allowed-headers=*
 spring.web.cors.allow-credentials=true
+'''
+                        echo "Created clean Formation-Service properties"
+                    }
+                    
+                    // Create clean User-Service properties
+                    if (fileExists('back/User-Service')) {
+                        sh 'mkdir -p back/User-Service/src/main/resources'
+                        writeFile file: 'back/User-Service/src/main/resources/application.properties', text: '''spring.application.name=Auth
+server.port=8089
+server.servlet.context-path=/tests
+
+# Database Configuration
+spring.datasource.url=jdbc:mysql://localhost:3306/onsjabbes?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=
+
+# JPA Configuration
+spring.jpa.show-sql=false
+spring.jpa.hibernate.ddl-auto=update
+
+# CORS Configuration
+spring.web.cors.allowed-origins=http://localhost:4200
+spring.web.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
+spring.web.cors.allowed-headers=*
+spring.web.cors.allow-credentials=true
+
+# Mail Configuration
 spring.mail.host=smtp.gmail.com
 spring.mail.port=587
 spring.mail.username=hajerhr7@gmail.com
 spring.mail.password=apec nvum joqt ymlc
 spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
+
+# Eureka Client Configuration
 eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka
 eureka.client.register-with-eureka=true
 eureka.client.fetch-registry=true
 eureka.instance.prefer-ip-address=true
-eureka.instance.hostname=localhost'''
-                        }
+eureka.instance.hostname=localhost
+'''
+                        echo "Created clean User-Service properties"
                     }
+                    
+                    // Create clean Eureka-Server properties
+                    if (fileExists('back/Eureka-Server')) {
+                        sh 'mkdir -p back/Eureka-Server/src/main/resources'
+                        writeFile file: 'back/Eureka-Server/src/main/resources/application.properties', text: '''spring.application.name=EurekaServer
+server.port=8761
+server.servlet.context-path=/
+
+# Eureka Server Configuration
+eureka.client.register-with-eureka=false
+eureka.client.fetch-registry=false
+eureka.instance.hostname=localhost
+eureka.server.eviction-interval-timer-in-ms=60000
+eureka.instance.lease-expiration-duration-in-seconds=90
+eureka.instance.lease-renewal-interval-in-seconds=30
+'''
+                        echo "Created clean Eureka-Server properties"
+                    }
+                    
+                    echo "All application.properties files have been recreated cleanly"
                 }
             }
         }
@@ -189,40 +196,25 @@ eureka.instance.hostname=localhost'''
                 stage("Build Microservices") {
                     steps {
                         script {
-                            // Auto-discover microservices
                             def microservices = []
                             
-                            // Check all possible service locations
-                            def possibleServices = [
-                                'back/Formation-Service',
-                                'back/User-Service', 
-                                'back/EurekaServer',
-                                'back/Eureka-Server',
-                                'Formation-Service',
-                                'User-Service',
-                                'EurekaServer',
-                                'Eureka-Server'
-                            ]
+                            // Check for microservices
+                            if (fileExists('back/Formation-Service/pom.xml')) microservices.add('back/Formation-Service')
+                            if (fileExists('back/User-Service/pom.xml')) microservices.add('back/User-Service')
+                            if (fileExists('back/Eureka-Server/pom.xml')) microservices.add('back/Eureka-Server')
                             
-                            possibleServices.each { service ->
-                                if (fileExists("${service}/pom.xml")) {
-                                    microservices.add(service)
-                                    echo "Found microservice: ${service}"
-                                }
-                            }
+                            echo "Building ${microservices.size()} microservices: ${microservices}"
                             
-                            if (microservices.isEmpty()) {
-                                echo "No microservices found with pom.xml files"
-                                currentBuild.result = 'UNSTABLE'
-                            } else {
-                                echo "Building ${microservices.size()} microservices: ${microservices}"
-                                
-                                microservices.each { service ->
-                                    echo "Building ${service}..."
-                                    dir(service) {
-                                        sh 'mvn clean package -DskipTests -Dfile.encoding=UTF-8 -Dproject.build.sourceEncoding=UTF-8'
-                                        echo "${service} built successfully"
-                                    }
+                            microservices.each { service ->
+                                echo "Building ${service}..."
+                                dir(service) {
+                                    sh '''
+                                        echo "Contents of application.properties:"
+                                        cat src/main/resources/application.properties || echo "No application.properties found"
+                                        echo "Building with clean configuration..."
+                                        mvn clean package -DskipTests -Dfile.encoding=UTF-8 -Dproject.build.sourceEncoding=UTF-8 -X
+                                    '''
+                                    echo "${service} built successfully"
                                 }
                             }
                         }
@@ -239,14 +231,8 @@ eureka.instance.hostname=localhost'''
                     }
                     steps {
                         script {
-                            def possibleServices = [
-                                'back/Formation-Service',
-                                'back/User-Service', 
-                                'back/EurekaServer',
-                                'back/Eureka-Server'
-                            ]
-                            
-                            possibleServices.each { service ->
+                            def microservices = ['back/Formation-Service', 'back/User-Service', 'back/Eureka-Server']
+                            microservices.each { service ->
                                 if (fileExists("${service}/pom.xml")) {
                                     echo "Testing ${service}..."
                                     dir(service) {
@@ -297,14 +283,13 @@ CMD ["nginx", "-g", "daemon off;"]'''
                         }
                         
                         // Build microservices images
-                        def possibleServices = [
+                        def services = [
                             ['back/Formation-Service', 'Formation-Service'],
                             ['back/User-Service', 'User-Service'],
-                            ['back/EurekaServer', 'EurekaServer'],
                             ['back/Eureka-Server', 'Eureka-Server']
                         ]
                         
-                        possibleServices.each { serviceInfo ->
+                        services.each { serviceInfo ->
                             def servicePath = serviceInfo[0]
                             def serviceName = serviceInfo[1]
                             
@@ -341,7 +326,7 @@ ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]'''
                     try {
                         sh 'docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-frontend:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo "Trivy scan completed with warnings"'
                         
-                        def services = ['Formation-Service', 'User-Service', 'EurekaServer', 'Eureka-Server']
+                        def services = ['Formation-Service', 'User-Service', 'Eureka-Server']
                         services.each { service ->
                             sh "docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-${service}:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo 'Trivy scan completed with warnings for ${service}'"
                         }
@@ -355,7 +340,7 @@ ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]'''
         stage('Cleanup Artifacts') {
             steps {
                 script {
-                    def services = ['frontend', 'Formation-Service', 'User-Service', 'EurekaServer', 'Eureka-Server']
+                    def services = ['frontend', 'Formation-Service', 'User-Service', 'Eureka-Server']
                     services.each { service ->
                         sh "docker rmi ${IMAGE_NAME}-${service}:${IMAGE_TAG} || true"
                         sh "docker rmi ${IMAGE_NAME}-${service}:latest || true"

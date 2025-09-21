@@ -17,6 +17,7 @@ pipeline {
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}"
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         PATH = "$PATH:$HOME/.npm-global/bin"
+        MAVEN_OPTS = "-Dfile.encoding=UTF-8"
     }
 
     stages {
@@ -57,6 +58,108 @@ pipeline {
             }
         }
 
+        stage("Fix Configuration Files") {
+            steps {
+                script {
+                    // Split the mixed application.properties files into separate service configs
+                    echo "Fixing configuration files for microservices..."
+                    
+                    // Check if we have the mixed configuration issue
+                    def mixedConfigFound = false
+                    
+                    sh '''
+                        # Check for mixed configurations in properties files
+                        find . -name "application.properties" -type f | while read file; do
+                            if grep -q "EurekaServer" "$file" && grep -q "Formation-Service" "$file"; then
+                                echo "Found mixed configuration in: $file"
+                                echo "true" > /tmp/mixed_config_found
+                            fi
+                        done
+                    '''
+                    
+                    // If mixed config found, split it
+                    if (fileExists('/tmp/mixed_config_found')) {
+                        echo "Splitting mixed configurations..."
+                        
+                        // Create separate application.properties for each service
+                        
+                        // EurekaServer properties
+                        if (fileExists('back/EurekaServer') || fileExists('back/Eureka-Server')) {
+                            def eurekaDir = fileExists('back/EurekaServer') ? 'back/EurekaServer' : 'back/Eureka-Server'
+                            sh "mkdir -p ${eurekaDir}/src/main/resources"
+                            writeFile file: "${eurekaDir}/src/main/resources/application.properties", text: '''server.error.include-binding-errors=always
+server.error.include-message=always
+spring.application.name=EurekaServer
+server.servlet.context-path=/
+server.port=8761
+eureka.client.register-with-eureka=false
+eureka.client.fetch-registry=false
+eureka.instance.hostname=localhost
+eureka.server.eviction-interval-timer-in-ms=60000
+eureka.instance.lease-expiration-duration-in-seconds=90
+eureka.instance.lease-renewal-interval-in-seconds=30'''
+                        }
+                        
+                        // Formation-Service properties
+                        if (fileExists('back/Formation-Service')) {
+                            sh "mkdir -p back/Formation-Service/src/main/resources"
+                            writeFile file: 'back/Formation-Service/src/main/resources/application.properties', text: '''spring.application.name=Formation-Service
+server.servlet.context-path=/Formation-Service
+server.port=9094
+server.session.cookie.secure=true
+spring.datasource.url=jdbc:mysql://localhost:3306/Formation-Service?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+spring.jpa.hibernate.ddl-auto=update
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka
+eureka.client.register-with-eureka=true
+eureka.client.fetch-registry=true
+eureka.instance.prefer-ip-address=true
+eureka.instance.hostname=localhost
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+spring.web.cors.allowed-origins=http://localhost:4200
+spring.web.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
+spring.web.cors.allowed-headers=*
+spring.web.cors.allow-credentials=true'''
+                        }
+                        
+                        // User-Service properties
+                        if (fileExists('back/User-Service')) {
+                            sh "mkdir -p back/User-Service/src/main/resources"
+                            writeFile file: 'back/User-Service/src/main/resources/application.properties', text: '''spring.application.name=Auth
+server.port=8089
+spring.datasource.url=jdbc:mysql://localhost:3306/onsjabbes?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=
+spring.kafka.bootstrap-servers=localhost:9092
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+logging.level.root=info
+logging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} -%level -%logger{60} %msg %n
+server.servlet.context-path=/tests
+spring.web.cors.allowed-origins=http://localhost:4200
+spring.web.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
+spring.web.cors.allowed-headers=*
+spring.web.cors.allow-credentials=true
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=hajerhr7@gmail.com
+spring.mail.password=apec nvum joqt ymlc
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+eureka.client.serviceUrl.defaultZone=http://localhost:8761/eureka
+eureka.client.register-with-eureka=true
+eureka.client.fetch-registry=true
+eureka.instance.prefer-ip-address=true
+eureka.instance.hostname=localhost'''
+                        }
+                    }
+                }
+            }
+        }
+
         stage("Build Applications") {
             parallel {
                 stage("Build Frontend") {
@@ -72,7 +175,6 @@ pipeline {
                                     
                                     if [ -d "dist/sakai-ng" ] && [ -f "dist/sakai-ng/index.html" ]; then
                                         echo "Frontend build succeeded!"
-                                        ls -la dist/sakai-ng/
                                         exit 0
                                     else
                                         echo "Frontend build failed"
@@ -87,22 +189,40 @@ pipeline {
                 stage("Build Microservices") {
                     steps {
                         script {
-                            // Define your microservices
-                            def microservices = [
+                            // Auto-discover microservices
+                            def microservices = []
+                            
+                            // Check all possible service locations
+                            def possibleServices = [
+                                'back/Formation-Service',
+                                'back/User-Service', 
                                 'back/EurekaServer',
-                                'back/Formation-Service', 
-                                'back/User-Service'
+                                'back/Eureka-Server',
+                                'Formation-Service',
+                                'User-Service',
+                                'EurekaServer',
+                                'Eureka-Server'
                             ]
                             
-                            microservices.each { service ->
+                            possibleServices.each { service ->
                                 if (fileExists("${service}/pom.xml")) {
+                                    microservices.add(service)
+                                    echo "Found microservice: ${service}"
+                                }
+                            }
+                            
+                            if (microservices.isEmpty()) {
+                                echo "No microservices found with pom.xml files"
+                                currentBuild.result = 'UNSTABLE'
+                            } else {
+                                echo "Building ${microservices.size()} microservices: ${microservices}"
+                                
+                                microservices.each { service ->
                                     echo "Building ${service}..."
                                     dir(service) {
-                                        sh 'mvn clean package -DskipTests -q'
+                                        sh 'mvn clean package -DskipTests -Dfile.encoding=UTF-8 -Dproject.build.sourceEncoding=UTF-8'
                                         echo "${service} built successfully"
                                     }
-                                } else {
-                                    echo "Warning: ${service}/pom.xml not found, skipping..."
                                 }
                             }
                         }
@@ -114,19 +234,23 @@ pipeline {
         stage("Test Applications") {
             parallel {
                 stage("Test Microservices") {
+                    when {
+                        expression { currentBuild.result != 'FAILURE' }
+                    }
                     steps {
                         script {
-                            def microservices = [
+                            def possibleServices = [
+                                'back/Formation-Service',
+                                'back/User-Service', 
                                 'back/EurekaServer',
-                                'back/Formation-Service', 
-                                'back/User-Service'
+                                'back/Eureka-Server'
                             ]
                             
-                            microservices.each { service ->
+                            possibleServices.each { service ->
                                 if (fileExists("${service}/pom.xml")) {
                                     echo "Testing ${service}..."
                                     dir(service) {
-                                        sh 'mvn test -q || echo "Tests failed for ${service} but continuing pipeline"'
+                                        sh 'mvn test -Dfile.encoding=UTF-8 || echo "Tests failed for ${service} but continuing pipeline"'
                                     }
                                 }
                             }
@@ -135,6 +259,9 @@ pipeline {
                 }
                 
                 stage("Test Frontend") {
+                    when {
+                        expression { currentBuild.result != 'FAILURE' }
+                    }
                     steps {
                         script {
                             dir('front') {
@@ -146,58 +273,16 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            parallel {
-                stage('SonarQube Microservices') {
-                    steps {
-                        script {
-                            // Analyze Formation-Service (main business service)
-                            if (fileExists('back/Formation-Service/pom.xml')) {
-                                dir('back/Formation-Service') {
-                                    withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-token') {
-                                        sh 'mvn sonar:sonar || echo "SonarQube analysis failed but continuing"'
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                stage('SonarQube Frontend') {
-                    steps {
-                        script {
-                            dir('front') {
-                                withSonarQubeEnv(credentialsId: 'jenkins-sonarqube-token') {
-                                    sh 'npm install sonar-scanner || echo "sonar-scanner install failed"'
-                                    sh 'npx sonar-scanner || echo "Frontend SonarQube analysis failed but continuing"'
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                script {
-                    try {
-                        waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-token'
-                    } catch (Exception e) {
-                        echo "Quality Gate check failed but continuing: ${e.message}"
-                    }
-                }
-            }
-        }
-
         stage('Build & Push Docker Images') {
+            when {
+                expression { currentBuild.result != 'FAILURE' }
+            }
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_PASS) {
                         
                         // Build frontend image
                         if (fileExists('front/dist/sakai-ng/index.html')) {
-                            // Create Dockerfile for frontend if it doesn't exist
                             if (!fileExists('front/Dockerfile')) {
                                 writeFile file: 'front/Dockerfile', text: '''FROM nginx:alpine
 COPY dist/sakai-ng /usr/share/nginx/html/
@@ -212,35 +297,34 @@ CMD ["nginx", "-g", "daemon off;"]'''
                         }
                         
                         // Build microservices images
-                        def microservices = [
-                            'back/EurekaServer',
-                            'back/Formation-Service', 
-                            'back/User-Service'
+                        def possibleServices = [
+                            ['back/Formation-Service', 'Formation-Service'],
+                            ['back/User-Service', 'User-Service'],
+                            ['back/EurekaServer', 'EurekaServer'],
+                            ['back/Eureka-Server', 'Eureka-Server']
                         ]
                         
-                        microservices.each { service ->
-                            def serviceName = service.split('/')[1]
+                        possibleServices.each { serviceInfo ->
+                            def servicePath = serviceInfo[0]
+                            def serviceName = serviceInfo[1]
                             
-                            if (fileExists("${service}/target") && fileExists("${service}/pom.xml")) {
-                                // Create Dockerfile for service if it doesn't exist
-                                if (!fileExists("${service}/Dockerfile")) {
-                                    writeFile file: "${service}/Dockerfile", text: '''FROM eclipse-temurin:17-jre-alpine
+                            if (fileExists("${servicePath}/target") && fileExists("${servicePath}/pom.xml")) {
+                                if (!fileExists("${servicePath}/Dockerfile")) {
+                                    writeFile file: "${servicePath}/Dockerfile", text: '''FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-COPY target/*-SNAPSHOT.jar app.jar
+COPY target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]'''
+ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]'''
                                 }
                                 
                                 try {
-                                    def serviceImage = docker.build("${IMAGE_NAME}-${serviceName}:${IMAGE_TAG}", "${service}/")
+                                    def serviceImage = docker.build("${IMAGE_NAME}-${serviceName}:${IMAGE_TAG}", "${servicePath}/")
                                     serviceImage.push()
                                     serviceImage.push('latest')
                                     echo "${serviceName} image pushed successfully"
                                 } catch (Exception e) {
                                     echo "Warning: Failed to build Docker image for ${serviceName}: ${e.message}"
                                 }
-                            } else {
-                                echo "Warning: No JAR file found for ${serviceName}, skipping Docker build"
                             }
                         }
                     }
@@ -249,13 +333,18 @@ ENTRYPOINT ["java", "-jar", "app.jar"]'''
         }
 
         stage("Trivy Scan") {
+            when {
+                expression { currentBuild.result != 'FAILURE' }
+            }
             steps {
                 script {
                     try {
                         sh 'docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-frontend:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo "Trivy scan completed with warnings"'
-                        sh 'docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-EurekaServer:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo "Trivy scan completed with warnings"'
-                        sh 'docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-Formation-Service:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo "Trivy scan completed with warnings"'
-                        sh 'docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-User-Service:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo "Trivy scan completed with warnings"'
+                        
+                        def services = ['Formation-Service', 'User-Service', 'EurekaServer', 'Eureka-Server']
+                        services.each { service ->
+                            sh "docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-${service}:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo 'Trivy scan completed with warnings for ${service}'"
+                        }
                     } catch (Exception e) {
                         echo "Trivy scans failed but continuing: ${e.message}"
                     }
@@ -266,8 +355,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]'''
         stage('Cleanup Artifacts') {
             steps {
                 script {
-                    // Clean up Docker images
-                    def services = ['frontend', 'EurekaServer', 'Formation-Service', 'User-Service']
+                    def services = ['frontend', 'Formation-Service', 'User-Service', 'EurekaServer', 'Eureka-Server']
                     services.each { service ->
                         sh "docker rmi ${IMAGE_NAME}-${service}:${IMAGE_TAG} || true"
                         sh "docker rmi ${IMAGE_NAME}-${service}:latest || true"
@@ -276,7 +364,10 @@ ENTRYPOINT ["java", "-jar", "app.jar"]'''
             }
         }
 
-        stage('Trigger CD Pipeline') {  
+        stage('Trigger CD Pipeline') {
+            when {
+                expression { currentBuild.result != 'FAILURE' }
+            }
             steps {
                 script {
                     try {

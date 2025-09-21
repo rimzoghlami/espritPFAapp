@@ -369,7 +369,7 @@ ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]'''
             steps {
                 script {
                     try {
-                        sh "curl -v -k --user clouduser:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' '20.107.112.126:8080/job/gitops-cdpipeline/buildWithParameters?token=argocd-token'"
+                        sh "curl -v -k --user admin:${formation} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' '20.107.112.126:8080/job/gitops-cdpipeline/buildWithParameters?token=argocd-token'"
                         echo "CD Pipeline triggered successfully"
                     } catch (Exception e) {
                         echo "CD Pipeline trigger failed: ${e.message}"

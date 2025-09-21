@@ -173,18 +173,20 @@ eureka.instance.lease-renewal-interval-in-seconds=30
                     steps {
                         script {
                             dir('front') {
-                                sh 'npm install -g @angular/cli'
-                                sh 'npm install'
                                 sh '''
-                                    set +e
-                                    npx ng build --configuration production
-                                    BUILD_EXIT_CODE=$?
+                                    echo "Installing Angular CLI and dependencies..."
+                                    npm ci
                                     
+                                    echo "Building Angular application..."
+                                    npm run build --prod
+                                    
+                                    echo "Verifying build output..."
                                     if [ -d "dist/sakai-ng" ] && [ -f "dist/sakai-ng/index.html" ]; then
                                         echo "Frontend build succeeded!"
-                                        exit 0
+                                        ls -la dist/sakai-ng/
                                     else
-                                        echo "Frontend build failed"
+                                        echo "Frontend build failed - checking what was created:"
+                                        find dist/ -type f -name "*.html" 2>/dev/null || echo "No HTML files found"
                                         exit 1
                                     fi
                                 '''
@@ -212,7 +214,7 @@ eureka.instance.lease-renewal-interval-in-seconds=30
                                         echo "Contents of application.properties:"
                                         cat src/main/resources/application.properties || echo "No application.properties found"
                                         echo "Building with clean configuration..."
-                                        mvn clean package -DskipTests -Dfile.encoding=UTF-8 -Dproject.build.sourceEncoding=UTF-8 -X
+                                        mvn clean package -DskipTests -Dfile.encoding=UTF-8 -Dproject.build.sourceEncoding=UTF-8
                                     '''
                                     echo "${service} built successfully"
                                 }
@@ -267,14 +269,19 @@ eureka.instance.lease-renewal-interval-in-seconds=30
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_PASS) {
                         
-                        // Build frontend image
+                        // Build frontend image with corrected multi-stage Dockerfile
                         if (fileExists('front/dist/sakai-ng/index.html')) {
-                            if (!fileExists('front/Dockerfile')) {
-                                writeFile file: 'front/Dockerfile', text: '''FROM nginx:alpine
-COPY dist/sakai-ng /usr/share/nginx/html/
+                            writeFile file: 'front/Dockerfile', text: '''FROM node:18-alpine AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npx ng build --configuration production
+
+FROM nginx:alpine
+COPY --from=build /app/dist/sakai-ng /usr/share/nginx/html/
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]'''
-                            }
                             
                             def frontendImage = docker.build("${IMAGE_NAME}-frontend:${IMAGE_TAG}", 'front/')
                             frontendImage.push()
@@ -284,9 +291,9 @@ CMD ["nginx", "-g", "daemon off;"]'''
                         
                         // Build microservices images
                         def services = [
-                            ['back/Formation-Service', 'Formation-Service'],
-                            ['back/User-Service', 'User-Service'],
-                            ['back/Eureka-Server', 'Eureka-Server']
+                            ['back/Formation-Service', 'formation-service'],
+                            ['back/User-Service', 'user-service'],
+                            ['back/Eureka-Server', 'eureka-server']
                         ]
                         
                         services.each { serviceInfo ->
@@ -294,13 +301,11 @@ CMD ["nginx", "-g", "daemon off;"]'''
                             def serviceName = serviceInfo[1]
                             
                             if (fileExists("${servicePath}/target") && fileExists("${servicePath}/pom.xml")) {
-                                if (!fileExists("${servicePath}/Dockerfile")) {
-                                    writeFile file: "${servicePath}/Dockerfile", text: '''FROM eclipse-temurin:17-jre-alpine
+                                writeFile file: "${servicePath}/Dockerfile", text: '''FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]'''
-                                }
                                 
                                 try {
                                     def serviceImage = docker.build("${IMAGE_NAME}-${serviceName}:${IMAGE_TAG}", "${servicePath}/")
@@ -324,11 +329,14 @@ ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]'''
             steps {
                 script {
                     try {
-                        sh 'docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-frontend:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo "Trivy scan completed with warnings"'
+                        sh '''
+                            echo "Running Trivy security scans..."
+                            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-frontend:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo "Trivy scan completed with warnings"
+                        '''
                         
-                        def services = ['Formation-Service', 'User-Service', 'Eureka-Server']
+                        def services = ['formation-service', 'user-service', 'eureka-server']
                         services.each { service ->
-                            sh "docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-${service}:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo 'Trivy scan completed with warnings for ${service}'"
+                            sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}-${service}:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table || echo 'Trivy scan completed with warnings for ${service}'"
                         }
                     } catch (Exception e) {
                         echo "Trivy scans failed but continuing: ${e.message}"
@@ -340,10 +348,15 @@ ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]'''
         stage('Cleanup Artifacts') {
             steps {
                 script {
-                    def services = ['frontend', 'Formation-Service', 'User-Service', 'Eureka-Server']
-                    services.each { service ->
-                        sh "docker rmi ${IMAGE_NAME}-${service}:${IMAGE_TAG} || true"
-                        sh "docker rmi ${IMAGE_NAME}-${service}:latest || true"
+                    try {
+                        def services = ['frontend', 'formation-service', 'user-service', 'eureka-server']
+                        services.each { service ->
+                            sh "docker rmi ${IMAGE_NAME}-${service}:${IMAGE_TAG} || true"
+                            sh "docker rmi ${IMAGE_NAME}-${service}:latest || true"
+                        }
+                        echo "Docker images cleaned up successfully"
+                    } catch (Exception e) {
+                        echo "Cleanup warning: ${e.message}"
                     }
                 }
             }
@@ -357,6 +370,7 @@ ENTRYPOINT ["java", "-Xmx512m", "-Xms256m", "-jar", "app.jar"]'''
                 script {
                     try {
                         sh "curl -v -k --user clouduser:${JENKINS_API_TOKEN} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' '20.107.112.126:8080/job/gitops-cdpipeline/buildWithParameters?token=argocd-token'"
+                        echo "CD Pipeline triggered successfully"
                     } catch (Exception e) {
                         echo "CD Pipeline trigger failed: ${e.message}"
                     }

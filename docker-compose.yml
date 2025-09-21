@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-microservices
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: database
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Eureka Server (Service Discovery)
+  eureka-server:
+    image: rimzoghlami/cicd-pipeline-EurekaServer:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # Formation Service
+  formation-service:
+    image: rimzoghlami/cicd-pipeline-Formation-Service:latest
+    container_name: formation-service
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/database
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # User Service
+  user-service:
+    image: rimzoghlami/cicd-pipeline-User-Service:latest
+    container_name: user-service
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/database
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # Frontend Application
+  frontend:
+    image: rimzoghlami/cicd-pipeline-frontend:latest
+    container_name: frontend-app
+    ports:
+      - "80:80"
+    depends_on:
+      - formation-service
+      - user-service
+    networks:
+      - microservices-network
+    restart: unless-stopped
+
+  # Optional: API Gateway (if you add one later)
+  # api-gateway:
+  #   image: rimzoghlami/cicd-pipeline-Gateway:latest
+  #   container_name: api-gateway
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+  #   depends_on:
+  #     eureka-server:
+  #       condition: service_healthy
+  #   networks:
+  #     - microservices-network
+
+volumes:
+  mysql_data:
+
+networks:
+  microservices-network:
+    driver: bridge
